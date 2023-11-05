@@ -1,0 +1,48 @@
+openapi: 3.0.3
+
+info:
+  title: Сервис Gophermart
+  description: Система лояльности Gophermart
+  version: 1.0.0
+
+servers:
+  - url: /v1
+
+paths:
+  /ping:
+    get:
+      description: Проверка жизнеспособности внутренних сервисов
+      responses:
+        200:
+          description: Проекты
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+
+components:
+  schemas:
+    PingResponse:
+      type: object
+      properties:
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceStatus'
+
+    ServiceStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Database"
+        status:
+          type: string
+          enum:
+            - OK
+            - Fail
+          example: OK
+        error:
+          type: string
+          nullable: true
+          example: null

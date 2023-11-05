@@ -5,6 +5,7 @@ import (
 	loggerPkg "github.com/anoriar/gophermart/internal/gophermart/app/logger"
 	"github.com/anoriar/gophermart/internal/gophermart/config"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/user"
+	"github.com/anoriar/gophermart/internal/gophermart/services/ping"
 )
 
 func InitializeApp(conf *config.Config) (*App, error) {
@@ -17,5 +18,5 @@ func InitializeApp(conf *config.Config) (*App, error) {
 		return nil, err
 	}
 
-	return NewApp(conf, logger, db, user.NewUserRepository(db, logger)), nil
+	return NewApp(conf, logger, db, ping.NewPingService(db), user.NewUserRepository(db, logger)), nil
 }

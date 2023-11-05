@@ -1,23 +1,30 @@
 package ping
 
 import (
-	"github.com/anoriar/gophermart/internal/gophermart/app"
+	"encoding/json"
+	pingService "github.com/anoriar/gophermart/internal/gophermart/services/ping"
 	"net/http"
 )
 
 type PingHandler struct {
-	app *app.App
+	pingService pingService.PingServiceInterface
 }
 
-func NewPingHandler(app *app.App) *PingHandler {
-	return &PingHandler{app: app}
+func NewPingHandler(pingService pingService.PingServiceInterface) *PingHandler {
+	return &PingHandler{pingService: pingService}
 }
 
 func (handler *PingHandler) Ping(w http.ResponseWriter, req *http.Request) {
-	//TODO: ping
+	response := handler.pingService.Ping()
+	responseBody, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, "Json marshal Error", http.StatusInternalServerError)
+		return
+	}
 
+	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	_, err := w.Write([]byte("OK"))
+	_, err = w.Write(responseBody)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
