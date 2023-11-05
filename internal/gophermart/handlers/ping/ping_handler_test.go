@@ -18,7 +18,7 @@ func TestPingHandler_Ping(t *testing.T) {
 
 	pingServiceMock := mock.NewMockPingServiceInterface(ctrl)
 	pingResponseDto := ping.PingResponseDto{
-		Services: []ping.ServiceStatus{
+		Services: []ping.ServiceStatusDto{
 			{
 				Name:   "service",
 				Status: ping.OKStatus,

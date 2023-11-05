@@ -19,22 +19,22 @@ func NewPingService(database *db.Database) *PingService {
 
 func (service *PingService) Ping() ping.PingResponseDto {
 	return ping.PingResponseDto{
-		Services: []ping.ServiceStatus{
+		Services: []ping.ServiceStatusDto{
 			service.pingDatabase(),
 		},
 	}
 }
 
-func (service *PingService) pingDatabase() ping.ServiceStatus {
+func (service *PingService) pingDatabase() ping.ServiceStatusDto {
 	err := service.database.Ping()
 	if err != nil {
-		return ping.ServiceStatus{
+		return ping.ServiceStatusDto{
 			Name:   dbServiceName,
 			Status: ping.FailStatus,
 			Error:  err.Error(),
 		}
 	}
-	return ping.ServiceStatus{
+	return ping.ServiceStatusDto{
 		Name:   dbServiceName,
 		Status: ping.OKStatus,
 		Error:  "",

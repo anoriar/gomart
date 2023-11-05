@@ -27,7 +27,7 @@ func TestPingService_Ping(t *testing.T) {
 				dbMock.EXPECT().Ping().Return(nil).Times(1)
 			},
 			want: ping.PingResponseDto{
-				Services: []ping.ServiceStatus{
+				Services: []ping.ServiceStatusDto{
 					{
 						Name:   dbServiceName,
 						Status: ping.OKStatus,
@@ -42,7 +42,7 @@ func TestPingService_Ping(t *testing.T) {
 				dbMock.EXPECT().Ping().Return(dbError).Times(1)
 			},
 			want: ping.PingResponseDto{
-				Services: []ping.ServiceStatus{
+				Services: []ping.ServiceStatusDto{
 					{
 						Name:   dbServiceName,
 						Status: ping.FailStatus,

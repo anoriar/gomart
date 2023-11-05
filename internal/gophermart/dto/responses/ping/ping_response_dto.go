@@ -6,5 +6,5 @@ const (
 )
 
 type PingResponseDto struct {
-	Services []ServiceStatus `json:"services"`
+	Services []ServiceStatusDto `json:"services"`
 }

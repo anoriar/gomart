@@ -3,15 +3,15 @@ package db
 import "github.com/jmoiron/sqlx"
 
 type Database struct {
-	conn *sqlx.DB
+	Conn *sqlx.DB
 }
 
 func NewDatabase(db *sqlx.DB) *Database {
-	return &Database{conn: db}
+	return &Database{Conn: db}
 }
 
 func (db *Database) Ping() error {
-	err := db.conn.Ping()
+	err := db.Conn.Ping()
 	if err != nil {
 		return err
 	}

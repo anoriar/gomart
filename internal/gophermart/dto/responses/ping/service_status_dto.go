@@ -2,14 +2,14 @@ package ping
 
 import "encoding/json"
 
-type ServiceStatus struct {
+type ServiceStatusDto struct {
 	Name   string `json:"name"`
 	Status string `json:"status"`
 	Error  string `json:"error"`
 }
 
-func (ms ServiceStatus) MarshalJSON() ([]byte, error) {
-	type alias ServiceStatus
+func (ms ServiceStatusDto) MarshalJSON() ([]byte, error) {
+	type alias ServiceStatusDto
 	if ms.Error == "" {
 		return json.Marshal(&struct {
 			Name   string      `json:"name"`
