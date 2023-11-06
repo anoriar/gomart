@@ -30,7 +30,11 @@ func (handler *RegisterHandler) Register(w http.ResponseWriter, req *http.Reques
 	requestDto := &register.RegisterUserRequestDto{}
 	err = json.Unmarshal(requestBody, requestDto)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if _, ok := err.(*json.SyntaxError); ok {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
 	validationErrors := handler.validator.Validate(*requestDto)
@@ -50,5 +54,6 @@ func (handler *RegisterHandler) Register(w http.ResponseWriter, req *http.Reques
 	}
 
 	w.Header().Add("Authorization", tokenString)
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 }

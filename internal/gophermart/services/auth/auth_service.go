@@ -6,8 +6,8 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/dto/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/user"
-	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/factory"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/factory/salt"
+	user2 "github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/factory/user"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/password"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/token"
 	"go.uber.org/zap"
@@ -17,7 +17,7 @@ type AuthService struct {
 	userRepository  user.UserRepositoryInterface
 	passwordService password.PasswordServiceInterface
 	tokenService    token.TokenSerivceInterface
-	userFactory     *factory.UserFactory
+	userFactory     user2.UserFactoryInterface
 	saltFactory     salt.SaltFactoryInterface
 	logger          *zap.Logger
 }
@@ -26,7 +26,7 @@ func NewAuthService(
 	userRepository user.UserRepositoryInterface,
 	passwordService password.PasswordServiceInterface,
 	tokenService token.TokenSerivceInterface,
-	userFactory *factory.UserFactory,
+	userFactory user2.UserFactoryInterface,
 	saltFactory salt.SaltFactoryInterface,
 	logger *zap.Logger,
 ) *AuthService {

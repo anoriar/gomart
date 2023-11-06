@@ -1,4 +1,4 @@
-package factory
+package user
 
 import (
 	"github.com/anoriar/gophermart/internal/gophermart/entity/user"
