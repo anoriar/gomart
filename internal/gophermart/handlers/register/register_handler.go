@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
+	"github.com/anoriar/gophermart/internal/gophermart/handlers/register/internal"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/repository_error"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth"
 	"io"
@@ -11,14 +12,15 @@ import (
 )
 
 type RegisterHandler struct {
-	registerService auth.RegisterServiceInterface
+	registerService auth.AuthServiceInterface
+	validator       *internal.RegisterValidator
 }
 
-func NewRegisterHandler(registerService auth.RegisterServiceInterface) *RegisterHandler {
-	return &RegisterHandler{registerService: registerService}
+func NewRegisterHandler(registerService auth.AuthServiceInterface) *RegisterHandler {
+	return &RegisterHandler{registerService: registerService, validator: internal.NewRegisterValidator()}
 }
 
-func (handler *RegisterHandler) Ping(w http.ResponseWriter, req *http.Request) {
+func (handler *RegisterHandler) Register(w http.ResponseWriter, req *http.Request) {
 	requestBody, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -31,9 +33,13 @@ func (handler *RegisterHandler) Ping(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	//TODO: validate
+	validationErrors := handler.validator.Validate(*requestDto)
+	if len(validationErrors) > 0 {
+		http.Error(w, validationErrors.String(), http.StatusBadRequest)
+		return
+	}
 
-	err = handler.registerService.RegisterUser(req.Context(), *requestDto)
+	tokenString, err := handler.registerService.RegisterUser(req.Context(), *requestDto)
 	if err != nil {
 		if errors.Is(err, repository_error.ErrConflict) {
 			http.Error(w, "Json marshal Error", http.StatusConflict)
@@ -43,5 +49,6 @@ func (handler *RegisterHandler) Ping(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	w.Header().Add("Authorization", tokenString)
 	w.WriteHeader(http.StatusOK)
 }

@@ -14,14 +14,50 @@ paths:
       description: Проверка жизнеспособности внутренних сервисов
       responses:
         200:
-          description: Проекты
+          description: Ping response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PingResponse'
 
+  /api/user/register:
+    post:
+      description: Регистрация пользователя
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+
+      responses:
+        200:
+          description: пользователь успешно зарегистрирован и аутентифицирован
+          headers:
+            Authorization:
+              description: Токен авторизации
+              schema:
+                type: string
+                example: hdd8fh84t8if5h489rghe9jfisodjfpjerhgf4j0f
+        400:
+          description: неверный формат запроса
+        409:
+          description: логин уже занят
+        500:
+          description: внутренняя ошибка сервера
+
+
 components:
   schemas:
+    UserRegisterRequest:
+      type: object
+      properties:
+        login:
+          type: string
+          example: test@gmail.com
+        password:
+          type: string
+          example: rj94th9ro
+
     PingResponse:
       type: object
       properties:
@@ -29,6 +65,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ServiceStatus'
+
 
     ServiceStatus:
       type: object

@@ -4,6 +4,7 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/app/db"
 	"github.com/anoriar/gophermart/internal/gophermart/config"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/user"
+	"github.com/anoriar/gophermart/internal/gophermart/services/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/services/ping"
 	"go.uber.org/zap"
 )
@@ -13,6 +14,7 @@ type App struct {
 	Logger         *zap.Logger
 	Database       *db.Database
 	PingService    ping.PingServiceInterface
+	AuthService    auth.AuthServiceInterface
 	UserRepository user.UserRepositoryInterface
 }
 
@@ -21,6 +23,7 @@ func NewApp(
 	logger *zap.Logger,
 	database *db.Database,
 	pingService ping.PingServiceInterface,
+	authService auth.AuthServiceInterface,
 	userRepository user.UserRepositoryInterface,
 ) *App {
 	return &App{
@@ -28,6 +31,7 @@ func NewApp(
 		Logger:         logger,
 		Database:       database,
 		PingService:    pingService,
+		AuthService:    authService,
 		UserRepository: userRepository,
 	}
 }

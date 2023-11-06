@@ -37,7 +37,7 @@ func (m *MockPingServiceInterface) EXPECT() *MockPingServiceInterfaceMockRecorde
 // Ping mocks base method.
 func (m *MockPingServiceInterface) Ping() ping.PingResponseDto {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Ping")
+	ret := m.ctrl.Call(m, "Register")
 	ret0, _ := ret[0].(ping.PingResponseDto)
 	return ret0
 }
@@ -45,5 +45,5 @@ func (m *MockPingServiceInterface) Ping() ping.PingResponseDto {
 // Ping indicates an expected call of Ping.
 func (mr *MockPingServiceInterfaceMockRecorder) Ping() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockPingServiceInterface)(nil).Ping))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockPingServiceInterface)(nil).Ping))
 }

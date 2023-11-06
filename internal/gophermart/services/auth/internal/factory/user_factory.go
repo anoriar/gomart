@@ -8,6 +8,10 @@ import (
 type UserFactory struct {
 }
 
+func NewUserFactory() *UserFactory {
+	return &UserFactory{}
+}
+
 func (factory *UserFactory) Create(login string, password string, salt string) user.User {
 	return user.User{
 		Id:       uuid.NewString(),

@@ -1,2 +1,11 @@
 ### ping
 GET {{baseUrl}}/ping
+
+### register user
+POST {{baseUrl}}/api/user/register
+Content-Type: application/json
+
+{
+  "login": "test@gmail.com",
+  "password": "fh49t3jrojf"
+}

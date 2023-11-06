@@ -2,35 +2,63 @@ package auth
 
 import (
 	"context"
+	"encoding/hex"
+	"github.com/anoriar/gophermart/internal/gophermart/dto/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/user"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/factory"
-	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services"
+	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/factory/salt"
+	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/password"
+	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/token"
+	"go.uber.org/zap"
 )
 
 type AuthService struct {
 	userRepository  user.UserRepositoryInterface
-	passwordService services.PasswordServiceInterface
+	passwordService password.PasswordServiceInterface
+	tokenService    token.TokenSerivceInterface
 	userFactory     *factory.UserFactory
-	saltFactory     *factory.SaltFactory
+	saltFactory     salt.SaltFactoryInterface
+	logger          *zap.Logger
 }
 
-func NewAuthService(userRepository user.UserRepositoryInterface, passwordService services.PasswordServiceInterface, userFactory *factory.UserFactory) *AuthService {
-	return &AuthService{userRepository: userRepository, passwordService: passwordService, userFactory: userFactory}
+func NewAuthService(
+	userRepository user.UserRepositoryInterface,
+	passwordService password.PasswordServiceInterface,
+	tokenService token.TokenSerivceInterface,
+	userFactory *factory.UserFactory,
+	saltFactory salt.SaltFactoryInterface,
+	logger *zap.Logger,
+) *AuthService {
+	return &AuthService{
+		userRepository:  userRepository,
+		passwordService: passwordService,
+		tokenService:    tokenService,
+		userFactory:     userFactory,
+		saltFactory:     saltFactory,
+		logger:          logger,
+	}
 }
 
-func (service *AuthService) RegisterUser(ctx context.Context, registerUserDto register.RegisterUserRequestDto) error {
+func (service *AuthService) RegisterUser(ctx context.Context, registerUserDto register.RegisterUserRequestDto) (string, error) {
 	salt, err := service.saltFactory.GenerateSalt()
 	if err != nil {
-		return err
+		service.logger.Error(err.Error())
+		return "", err
 	}
 	hashedPassword := service.passwordService.GenerateHashedPassword(registerUserDto.Password, salt)
 
-	newUser := service.userFactory.Create(registerUserDto.Login, hashedPassword, string(salt))
+	newUser := service.userFactory.Create(registerUserDto.Login, hashedPassword, hex.EncodeToString(salt))
 	err = service.userRepository.AddUser(ctx, newUser)
 	if err != nil {
-		return err
+		service.logger.Error(err.Error())
+		return "", err
 	}
-	//TODO: return jwt token
-	return nil
+
+	tokenString, err := service.tokenService.BuildTokenString(auth.UserClaims{UserID: newUser.Id})
+	if err != nil {
+		service.logger.Error(err.Error())
+		return "", err
+	}
+	return tokenString, nil
 }

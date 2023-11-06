@@ -1,4 +1,4 @@
-package factory
+package salt
 
 import "crypto/rand"
 

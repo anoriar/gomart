@@ -48,7 +48,7 @@ func (mr *MockDatabaseInterfaceMockRecorder) Close() *gomock.Call {
 // Ping mocks base method.
 func (m *MockDatabaseInterface) Ping() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Ping")
+	ret := m.ctrl.Call(m, "Register")
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -56,5 +56,5 @@ func (m *MockDatabaseInterface) Ping() error {
 // Ping indicates an expected call of Ping.
 func (mr *MockDatabaseInterfaceMockRecorder) Ping() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockDatabaseInterface)(nil).Ping))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockDatabaseInterface)(nil).Ping))
 }
