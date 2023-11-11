@@ -13,6 +13,7 @@ import (
 	user2 "github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/factory/user"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/password"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/token"
+	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/token/token_errors"
 	"go.uber.org/zap"
 )
 
@@ -98,4 +99,17 @@ func (service *AuthService) LoginUser(ctx context.Context, dto login.LoginUserRe
 		return "", err
 	}
 	return tokenString, nil
+}
+
+func (service *AuthService) ValidateToken(token string) (auth.UserClaims, error) {
+	claims, err := service.tokenService.GetUserClaims(token)
+	if err != nil {
+		if errors.Is(err, token_errors.ErrTokenNotValid) {
+			return auth.UserClaims{}, ErrUnauthorized
+		}
+		service.logger.Error(err.Error())
+		return auth.UserClaims{}, err
+	}
+
+	return claims, nil
 }

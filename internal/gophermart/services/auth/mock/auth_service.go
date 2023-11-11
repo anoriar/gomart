@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	auth "github.com/anoriar/gophermart/internal/gophermart/dto/auth"
 	login "github.com/anoriar/gophermart/internal/gophermart/dto/requests/login"
 	register "github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
 	gomock "github.com/golang/mock/gomock"
@@ -64,4 +65,19 @@ func (m *MockAuthServiceInterface) RegisterUser(ctx context.Context, dto registe
 func (mr *MockAuthServiceInterfaceMockRecorder) RegisterUser(ctx, dto interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterUser", reflect.TypeOf((*MockAuthServiceInterface)(nil).RegisterUser), ctx, dto)
+}
+
+// ValidateToken mocks base method.
+func (m *MockAuthServiceInterface) ValidateToken(token string) (auth.UserClaims, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateToken", token)
+	ret0, _ := ret[0].(auth.UserClaims)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ValidateToken indicates an expected call of ValidateToken.
+func (mr *MockAuthServiceInterfaceMockRecorder) ValidateToken(token interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateToken", reflect.TypeOf((*MockAuthServiceInterface)(nil).ValidateToken), token)
 }

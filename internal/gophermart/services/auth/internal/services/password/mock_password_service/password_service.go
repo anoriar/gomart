@@ -33,20 +33,6 @@ func (m *MockPasswordServiceInterface) EXPECT() *MockPasswordServiceInterfaceMoc
 	return m.recorder
 }
 
-// ComparePasswords mocks base method.
-func (m *MockPasswordServiceInterface) ComparePasswords(password, hashedPassword string, salt []byte) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ComparePasswords", password, hashedPassword, salt)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// ComparePasswords indicates an expected call of ComparePasswords.
-func (mr *MockPasswordServiceInterfaceMockRecorder) ComparePasswords(password, hashedPassword, salt interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ComparePasswords", reflect.TypeOf((*MockPasswordServiceInterface)(nil).ComparePasswords), password, hashedPassword, salt)
-}
-
 // GenerateHashedPassword mocks base method.
 func (m *MockPasswordServiceInterface) GenerateHashedPassword(password string, salt []byte) string {
 	m.ctrl.T.Helper()

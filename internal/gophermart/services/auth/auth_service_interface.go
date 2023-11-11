@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"github.com/anoriar/gophermart/internal/gophermart/dto/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/login"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
 )
@@ -10,4 +11,5 @@ import (
 type AuthServiceInterface interface {
 	RegisterUser(ctx context.Context, dto register.RegisterUserRequestDto) (string, error)
 	LoginUser(ctx context.Context, dto login.LoginUserRequestDto) (string, error)
+	ValidateToken(token string) (auth.UserClaims, error)
 }

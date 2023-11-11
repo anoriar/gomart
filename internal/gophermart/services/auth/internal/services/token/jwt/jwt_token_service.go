@@ -1,6 +1,8 @@
 package jwt
 
 import (
+	"errors"
+	"fmt"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/token/token_errors"
 	"github.com/golang-jwt/jwt/v4"
@@ -26,7 +28,7 @@ func (service *JWTTokenService) BuildTokenString(userClaims auth.UserClaims) (st
 
 	tokenString, err := token.SignedString([]byte(service.secretKey))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w", err)
 	}
 
 	return tokenString, nil
@@ -38,7 +40,11 @@ func (service *JWTTokenService) GetUserClaims(tokenString string) (auth.UserClai
 		return []byte(service.secretKey), nil
 	})
 	if err != nil {
-		return auth.UserClaims{}, err
+		var validationError *jwt.ValidationError
+		if errors.As(err, &validationError) {
+			return auth.UserClaims{}, token_errors.ErrTokenNotValid
+		}
+		return auth.UserClaims{}, fmt.Errorf("%w", err)
 	}
 	if !token.Valid {
 		return auth.UserClaims{}, token_errors.ErrTokenNotValid

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
-	"github.com/anoriar/gophermart/internal/gophermart/repository/repository_error"
+	"github.com/anoriar/gophermart/internal/gophermart/services/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -93,7 +93,7 @@ func TestRegisterHandler_Register(t *testing.T) {
 			name:        "conflict",
 			requestBody: successRequestBody,
 			mockBehaviour: func() {
-				authServiceMock.EXPECT().RegisterUser(gomock.Any(), gomock.Any()).Return("", repository_error.ErrConflict).Times(1)
+				authServiceMock.EXPECT().RegisterUser(gomock.Any(), gomock.Any()).Return("", auth.ErrUserAlreadyExists).Times(1)
 			},
 			want: want{
 				status:     http.StatusConflict,

@@ -18,3 +18,13 @@ Content-Type: application/json
   "login": "test@gmail.com",
   "password": "fh49t3jrojf"
 }
+
+### load order
+POST {{baseUrl}}/api/user/orders
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTk2OTI4MTMsIlVzZXJJRCI6ImM5ZWVhOWU2LTJlMTItNGJmMS1hNGQ3LTk1MWQ2YWZhMzFlZiJ9.ZnfEdP-JvGzinKBNjZZ7rVsr35u5h5Y9XTlSXVmg42E
+
+{
+  "login": "test@gmail.com",
+  "password": "fh49t3jrojf"
+}
