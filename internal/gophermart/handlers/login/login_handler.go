@@ -1,36 +1,36 @@
-package register
+package login
 
 import (
 	"encoding/json"
 	"errors"
-	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
-	"github.com/anoriar/gophermart/internal/gophermart/handlers/register/internal"
+	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/login"
+	"github.com/anoriar/gophermart/internal/gophermart/handlers/login/internal"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth"
 	"io"
 	"net/http"
 )
 
-type RegisterHandler struct {
-	registerService auth.AuthServiceInterface
-	validator       *internal.RegisterValidator
+type LoginHandler struct {
+	authService auth.AuthServiceInterface
+	validator   *internal.LoginValidator
 }
 
-func NewRegisterHandler(registerService auth.AuthServiceInterface) *RegisterHandler {
-	return &RegisterHandler{registerService: registerService, validator: internal.NewRegisterValidator()}
+func NewLoginHandler(authService auth.AuthServiceInterface) *LoginHandler {
+	return &LoginHandler{authService: authService, validator: internal.NewLoginValidator()}
 }
 
-func (handler *RegisterHandler) Register(w http.ResponseWriter, req *http.Request) {
+func (handler *LoginHandler) Login(w http.ResponseWriter, req *http.Request) {
 	requestBody, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	requestDto := &register.RegisterUserRequestDto{}
+	requestDto := &login.LoginUserRequestDto{}
 	err = json.Unmarshal(requestBody, requestDto)
 	if err != nil {
 		if _, ok := err.(*json.SyntaxError); ok {
-			http.Error(w, "invalid json", http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 		}
@@ -42,10 +42,10 @@ func (handler *RegisterHandler) Register(w http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	tokenString, err := handler.registerService.RegisterUser(req.Context(), *requestDto)
+	tokenString, err := handler.authService.LoginUser(req.Context(), *requestDto)
 	if err != nil {
-		if errors.Is(err, auth.ErrUserAlreadyExists) {
-			http.Error(w, "user already exists", http.StatusConflict)
+		if errors.Is(err, auth.ErrUnauthorized) {
+			http.Error(w, "user unauthorized", http.StatusUnauthorized)
 			return
 		}
 		http.Error(w, "internal server error", http.StatusInternalServerError)

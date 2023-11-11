@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	login "github.com/anoriar/gophermart/internal/gophermart/dto/requests/login"
 	register "github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -33,6 +34,21 @@ func NewMockAuthServiceInterface(ctrl *gomock.Controller) *MockAuthServiceInterf
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAuthServiceInterface) EXPECT() *MockAuthServiceInterfaceMockRecorder {
 	return m.recorder
+}
+
+// LoginUser mocks base method.
+func (m *MockAuthServiceInterface) LoginUser(ctx context.Context, dto login.LoginUserRequestDto) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LoginUser", ctx, dto)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LoginUser indicates an expected call of LoginUser.
+func (mr *MockAuthServiceInterfaceMockRecorder) LoginUser(ctx, dto interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoginUser", reflect.TypeOf((*MockAuthServiceInterface)(nil).LoginUser), ctx, dto)
 }
 
 // RegisterUser mocks base method.

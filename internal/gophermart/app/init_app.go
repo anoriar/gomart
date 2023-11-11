@@ -18,7 +18,7 @@ func InitializeApp(conf *config.Config) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	userRepository := user.NewUserRepository(db, logger)
+	userRepository := user.NewUserRepository(db)
 	authService := auth.InitializeAuthService(conf, userRepository, logger)
 
 	return NewApp(conf, logger, db, ping.NewPingService(db), authService, userRepository), nil

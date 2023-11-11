@@ -6,7 +6,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: /v1
+  - url: /
 
 paths:
   /ping:
@@ -45,10 +45,45 @@ paths:
         500:
           description: внутренняя ошибка сервера
 
+  /api/user/login:
+    post:
+      description: Аутентификация пользователя
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+
+      responses:
+        200:
+          description: пользователь успешно аутентифицирован
+          headers:
+            Authorization:
+              description: Токен авторизации
+              schema:
+                type: string
+                example: hdd8fh84t8if5h489rghe9jfisodjfpjerhgf4j0f
+        400:
+          description: неверный формат запроса
+        401:
+          description: неверная пара логин/пароль
+        500:
+          description: внутренняя ошибка сервера
+
 
 components:
   schemas:
     UserRegisterRequest:
+      type: object
+      properties:
+        login:
+          type: string
+          example: test@gmail.com
+        password:
+          type: string
+          example: rj94th9ro
+
+    UserLoginRequest:
       type: object
       properties:
         login:

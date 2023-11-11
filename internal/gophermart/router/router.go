@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/anoriar/gophermart/internal/gophermart/app"
+	"github.com/anoriar/gophermart/internal/gophermart/handlers/login"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/ping"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/register"
 	"github.com/anoriar/gophermart/internal/gophermart/middleware/compress"
@@ -14,6 +15,7 @@ type Router struct {
 	compressMiddleware *compress.CompressMiddleware
 	pingHandler        *ping.PingHandler
 	registerHandler    *register.RegisterHandler
+	loginHandler       *login.LoginHandler
 }
 
 func NewRouter(app *app.App) *Router {
@@ -22,6 +24,7 @@ func NewRouter(app *app.App) *Router {
 		compressMiddleware: compress.NewCompressMiddleware(),
 		pingHandler:        ping.NewPingHandler(app.PingService),
 		registerHandler:    register.NewRegisterHandler(app.AuthService),
+		loginHandler:       login.NewLoginHandler(app.AuthService),
 	}
 }
 
@@ -33,6 +36,7 @@ func (r *Router) Route() chi.Router {
 
 	router.Get("/ping", r.pingHandler.Ping)
 	router.Post("/api/user/register", r.registerHandler.Register)
+	router.Post("/api/user/login", r.loginHandler.Login)
 
 	return router
 }

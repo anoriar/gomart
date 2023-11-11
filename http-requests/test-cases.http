@@ -9,3 +9,12 @@ Content-Type: application/json
   "login": "test@gmail.com",
   "password": "fh49t3jrojf"
 }
+
+### login user
+POST {{baseUrl}}/api/user/login
+Content-Type: application/json
+
+{
+  "login": "test@gmail.com",
+  "password": "fh49t3jrojf"
+}
