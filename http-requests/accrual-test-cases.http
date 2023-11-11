@@ -1,0 +1,27 @@
+### get order
+GET {{accrualUrl}}/api/orders/123456782
+
+### add goods
+POST {{accrualUrl}}/api/goods
+Content-Type: application/json
+
+{
+  "match": "Bork",
+  "reward": 11,
+  "reward_type": "%"
+}
+
+### add order
+POST {{accrualUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "order": "123456782",
+  "goods": [
+    {
+      "description": "Чайник Bork",
+      "price": 7000.99
+    }
+  ]
+}
+

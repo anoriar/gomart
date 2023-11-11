@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/anoriar/gophermart/internal/gophermart/app/db"
+	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
 	"github.com/anoriar/gophermart/internal/gophermart/entity/user"
-	"github.com/anoriar/gophermart/internal/gophermart/repository/repository_error"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -27,9 +27,9 @@ func (repository *UserRepository) AddUser(ctx context.Context, user user.User) e
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgerrcode.UniqueViolation == pgErr.Code {
-			return repository_error.ErrConflict
+			return fmt.Errorf("%w: %v", domain_errors.ErrConflict, err)
 		}
-		return fmt.Errorf("%w", err)
+		return fmt.Errorf("%w: %v", domain_errors.ErrInternalError, err)
 	}
 	return nil
 }
@@ -41,9 +41,9 @@ func (repository *UserRepository) GetUserByLogin(ctx context.Context, login stri
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return userRes, repository_error.ErrNotFound
+			return userRes, fmt.Errorf("%w: %v", domain_errors.ErrNotFound, err)
 		}
-		return userRes, fmt.Errorf("%w", err)
+		return userRes, fmt.Errorf("%w: %v", domain_errors.ErrInternalError, err)
 	}
 	return userRes, nil
 }

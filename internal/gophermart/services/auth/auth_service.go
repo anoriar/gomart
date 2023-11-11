@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/login"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
-	"github.com/anoriar/gophermart/internal/gophermart/repository/repository_error"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/user"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/factory/salt"
 	user2 "github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/factory/user"
@@ -58,7 +58,7 @@ func (service *AuthService) RegisterUser(ctx context.Context, registerUserDto re
 	newUser := service.userFactory.Create(registerUserDto.Login, hashedPassword, hex.EncodeToString(salt))
 	err = service.userRepository.AddUser(ctx, newUser)
 	if err != nil {
-		if errors.Is(err, repository_error.ErrConflict) {
+		if errors.Is(err, domain_errors.ErrConflict) {
 			return "", ErrUserAlreadyExists
 		}
 		service.logger.Error(err.Error())
@@ -76,7 +76,7 @@ func (service *AuthService) RegisterUser(ctx context.Context, registerUserDto re
 func (service *AuthService) LoginUser(ctx context.Context, dto login.LoginUserRequestDto) (string, error) {
 	existedUser, err := service.userRepository.GetUserByLogin(ctx, dto.Login)
 	if err != nil {
-		if errors.Is(err, repository_error.ErrNotFound) {
+		if errors.Is(err, domain_errors.ErrNotFound) {
 			return "", ErrUnauthorized
 		}
 		service.logger.Error(err.Error())
