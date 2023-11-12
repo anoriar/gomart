@@ -5,7 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
-	order2 "github.com/anoriar/gophermart/internal/gophermart/entity/order"
+	orderQueryPkg "github.com/anoriar/gophermart/internal/gophermart/dto/repository/order"
+	orderPkg "github.com/anoriar/gophermart/internal/gophermart/entity/order"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/order"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order/internal/services/luhn_validator"
 	"go.uber.org/zap"
@@ -17,8 +18,22 @@ type OrderService struct {
 	logger          *zap.Logger
 }
 
-func NewOrderService(orderRepository order.OrderRepositoryInterface, luhnValidator *luhn_validator.LuhnValidator, logger *zap.Logger) *OrderService {
-	return &OrderService{orderRepository: orderRepository, luhnValidator: luhnValidator, logger: logger}
+func (service *OrderService) GetUserOrders(ctx context.Context, userID string) ([]orderPkg.Order, error) {
+	orders, err := service.orderRepository.GetOrders(ctx, orderQueryPkg.OrdersQuery{
+		Filter: orderQueryPkg.OrdersFilterDto{
+			UserID: userID,
+		},
+	})
+	if err != nil {
+		service.logger.Error(err.Error())
+		return nil, err
+	}
+
+	return orders, nil
+}
+
+func NewOrderService(orderRepository order.OrderRepositoryInterface, logger *zap.Logger) *OrderService {
+	return &OrderService{orderRepository: orderRepository, luhnValidator: luhn_validator.NewLuhnValidator(), logger: logger}
 }
 
 func (service *OrderService) LoadOrder(ctx context.Context, orderID string, userID string) error {
@@ -29,12 +44,13 @@ func (service *OrderService) LoadOrder(ctx context.Context, orderID string, user
 
 	switch {
 	case err != nil && errors.Is(err, domain_errors.ErrNotFound):
-		newOrder := order2.CreateNewOrder(orderID, userID)
+		newOrder := orderPkg.CreateNewOrder(orderID, userID)
 		err := service.orderRepository.AddOrder(ctx, newOrder)
 		if err != nil {
 			service.logger.Error(err.Error())
 			return err
 		}
+		//TODO: send async task
 		return nil
 	case err != nil && !errors.Is(err, domain_errors.ErrNotFound):
 		service.logger.Error(err.Error())

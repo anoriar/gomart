@@ -3,7 +3,7 @@ package order
 import "time"
 
 const (
-	RegisteredStatus = "REGISTERED"
+	NewStatus        = "NEW"
 	ProcessingStatus = "PROCESSING"
 	InvalidStatus    = "INVALID"
 	ProcessedStatus  = "PROCESSED"
@@ -23,7 +23,7 @@ func CreateNewOrder(
 ) Order {
 	return Order{
 		Id:         id,
-		Status:     RegisteredStatus,
+		Status:     NewStatus,
 		Accrual:    0,
 		UploadedAt: time.Now(),
 		UserID:     userID,

@@ -21,10 +21,11 @@ Content-Type: application/json
 
 ### load order
 POST {{baseUrl}}/api/user/orders
-Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTk2OTI4MTMsIlVzZXJJRCI6ImM5ZWVhOWU2LTJlMTItNGJmMS1hNGQ3LTk1MWQ2YWZhMzFlZiJ9.ZnfEdP-JvGzinKBNjZZ7rVsr35u5h5Y9XTlSXVmg42E
+Content-Type: text/plain
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTk3ODk5MjMsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.XROZ47eVxb1RSGjFd-T3y4uBgdO0u6YwP5PUQH_T9Jw
 
-{
-  "login": "test@gmail.com",
-  "password": "fh49t3jrojf"
-}
+123456782
+
+### get orders
+GET {{baseUrl}}/api/user/orders
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTk3ODk5MjMsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.XROZ47eVxb1RSGjFd-T3y4uBgdO0u6YwP5PUQH_T9Jw

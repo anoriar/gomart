@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/anoriar/gophermart/internal/gophermart/app"
+	"github.com/anoriar/gophermart/internal/gophermart/handlers/get_orders"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/load_order"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/login"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/ping"
@@ -19,6 +20,7 @@ type Router struct {
 	registerHandler    *register.RegisterHandler
 	loginHandler       *login.LoginHandler
 	loadOrderHandler   *load_order.LoadOrderHandler
+	getOrdersHandler   *get_orders.GetOrdersHandler
 	authMiddleware     *auth.AuthMiddleware
 }
 
@@ -29,7 +31,8 @@ func NewRouter(app *app.App) *Router {
 		pingHandler:        ping.NewPingHandler(app.PingService),
 		registerHandler:    register.NewRegisterHandler(app.AuthService),
 		loginHandler:       login.NewLoginHandler(app.AuthService),
-		loadOrderHandler:   load_order.NewLoadOrderHandler(),
+		loadOrderHandler:   load_order.NewLoadOrderHandler(app.OrderService),
+		getOrdersHandler:   get_orders.NewGetOrdersHandler(app.OrderService),
 		authMiddleware:     auth.NewAuthMiddleware(app.AuthService),
 	}
 }
@@ -44,6 +47,7 @@ func (r *Router) Route() chi.Router {
 	router.Post("/api/user/register", r.registerHandler.Register)
 	router.Post("/api/user/login", r.loginHandler.Login)
 	router.With(r.authMiddleware.Auth).Post("/api/user/orders", r.loadOrderHandler.LoadOrder)
+	router.With(r.authMiddleware.Auth).Get("/api/user/orders", r.getOrdersHandler.GetOrders)
 
 	return router
 }

@@ -70,6 +70,50 @@ paths:
         500:
           description: внутренняя ошибка сервера
 
+  /api/user/orders:
+    post:
+      description: Загрузка заказа
+      security:
+        - apiKey: []
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              $ref: '#/components/schemas/LoadOrderRequest'
+
+      responses:
+        200:
+          description: заказ уже был загружен
+        202:
+          description: заказ успешно загружен
+        400:
+          description: неверный формат запроса
+        401:
+          description: пользователь не авторизован
+        422:
+          description: неверный формат номера заказа
+        409:
+          description: заказ загружен другим пользователем
+        500:
+          description: внутренняя ошибка сервера
+    get:
+      description: Заказы пользователя
+      security:
+        - apiKey: [ ]
+      responses:
+        200:
+          description: успешная обработка запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersResponse'
+        204:
+          description: нет данных для ответа
+        401:
+          description: пользователь не авторизован
+        500:
+          description: внутренняя ошибка сервера
+
 
 components:
   schemas:
@@ -92,6 +136,10 @@ components:
         password:
           type: string
           example: rj94th9ro
+
+    LoadOrderRequest:
+      type: string
+      example: 123456782
 
     PingResponse:
       type: object
@@ -118,3 +166,39 @@ components:
           type: string
           nullable: true
           example: null
+
+    OrdersResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Order'
+
+    Order:
+      type: object
+      properties:
+        number:
+          type: string
+          description: ID заказа
+          example: "9278923470"
+        status:
+          type: string
+          description: Статус
+          enum:
+            - NEW
+            - PROCESSING
+            - INVALID
+            - PROCESSED
+          example: PROCESSED
+        accrual:
+          type: number
+          description: Количество начисленных баллов
+          example: 500.30
+        uploaded_at:
+          type: string
+          description: Дата загрузки заказа в формате RFC3339
+          example: 2020-12-10T15:15:45+03:00
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: Authorization
+      in: header
