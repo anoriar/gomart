@@ -11,4 +11,5 @@ type OrderRepositoryInterface interface {
 	GetOrderByID(ctx context.Context, orderID string) (order.Order, error)
 	GetOrders(ctx context.Context, query orderQueryPkg.OrdersQuery) ([]order.Order, error)
 	GetTotal(ctx context.Context, filter orderQueryPkg.OrdersFilterDto) (int, error)
+	UpdateOrder(ctx context.Context, orderID string, status string, accrual float64) error
 }

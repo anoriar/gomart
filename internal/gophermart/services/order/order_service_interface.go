@@ -8,4 +8,5 @@ import (
 type OrderServiceInterface interface {
 	LoadOrder(ctx context.Context, orderID string, userID string) error
 	GetUserOrders(ctx context.Context, userID string) ([]order.Order, error)
+	ProcessOrder(ctx context.Context, orderID string) error
 }

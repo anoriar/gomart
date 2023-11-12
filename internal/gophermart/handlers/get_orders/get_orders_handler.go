@@ -48,6 +48,7 @@ func (handler *GetOrdersHandler) GetOrders(w http.ResponseWriter, req *http.Requ
 		return
 	}
 
+	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(responseBody)
 	if err != nil {

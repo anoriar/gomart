@@ -1,6 +1,11 @@
 package repository
 
+const (
+	AscDirection  = "ASC"
+	DescDirection = "DESC"
+)
+
 type SortDto struct {
-	Order string
-	By    string
+	By        string
+	Direction string
 }
