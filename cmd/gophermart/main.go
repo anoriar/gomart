@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	appPkg "github.com/anoriar/gophermart/internal/gophermart/app"
 	"github.com/anoriar/gophermart/internal/gophermart/config"
 	"github.com/anoriar/gophermart/internal/gophermart/router"
@@ -18,7 +19,7 @@ func main() {
 		panic(err)
 	}
 
-	app, err := appPkg.InitializeApp(conf)
+	app, err := appPkg.InitializeApp(context.Background(), conf)
 	if err != nil {
 		panic(err)
 	}

@@ -5,25 +5,38 @@ import (
 	"errors"
 	"fmt"
 	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
-	accrualPkg "github.com/anoriar/gophermart/internal/gophermart/dto/accrual"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/repository"
 	orderQueryPkg "github.com/anoriar/gophermart/internal/gophermart/dto/repository/order"
 	orderPkg "github.com/anoriar/gophermart/internal/gophermart/entity/order"
-	"github.com/anoriar/gophermart/internal/gophermart/repository/accrual"
+	"github.com/anoriar/gophermart/internal/gophermart/processors/bus"
+	"github.com/anoriar/gophermart/internal/gophermart/processors/order/message"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/order"
+	"github.com/anoriar/gophermart/internal/gophermart/services/order/fetcher"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order/internal/services/luhn_validator"
 	"go.uber.org/zap"
 )
 
 type OrderService struct {
 	orderRepository   order.OrderRepositoryInterface
-	accrualRepository accrual.AccrualRepositoryInterface
+	orderFetchService fetcher.OrderFetchServiceInterface
+	messageBus        bus.MessageBusInterface
 	luhnValidator     *luhn_validator.LuhnValidator
 	logger            *zap.Logger
 }
 
-func NewOrderService(orderRepository order.OrderRepositoryInterface, accrualRepository accrual.AccrualRepositoryInterface, logger *zap.Logger) *OrderService {
-	return &OrderService{orderRepository: orderRepository, accrualRepository: accrualRepository, luhnValidator: luhn_validator.NewLuhnValidator(), logger: logger}
+func NewOrderService(
+	orderRepository order.OrderRepositoryInterface,
+	orderFetchService fetcher.OrderFetchServiceInterface,
+	messageBus bus.MessageBusInterface,
+	logger *zap.Logger,
+) *OrderService {
+	return &OrderService{
+		orderRepository:   orderRepository,
+		orderFetchService: orderFetchService,
+		luhnValidator:     luhn_validator.NewLuhnValidator(),
+		messageBus:        messageBus,
+		logger:            logger,
+	}
 }
 
 func (service *OrderService) ProcessOrder(ctx context.Context, orderID string) error {
@@ -38,35 +51,22 @@ func (service *OrderService) ProcessOrder(ctx context.Context, orderID string) e
 		return fmt.Errorf(errText)
 	}
 
-	orderFromAccrualSystem, err := service.accrualRepository.GetOrder(orderID)
-	if err != nil {
-		if errors.Is(err, domain_errors.ErrNotFound) {
-			//Если заказ не найден - проставляем статус INVALID
-			err := service.orderRepository.UpdateOrder(ctx, orderID, orderPkg.InvalidStatus, orderEntity.Accrual)
-			if err != nil {
-				service.logger.Error(err.Error())
-				return err
-			}
-		}
-		service.logger.Error(err.Error())
-		return err
-	}
-
-	status := orderEntity.Status
-	switch orderFromAccrualSystem.Status {
-	case accrualPkg.AccrualProcessedStatus:
-		status = orderPkg.ProcessedStatus
-	case accrualPkg.AccrualInvalidStatus:
-		status = orderPkg.InvalidStatus
-	default:
-		status = orderPkg.ProcessingStatus
-	}
-
-	err = service.orderRepository.UpdateOrder(ctx, orderID, status, orderFromAccrualSystem.Accrual)
+	newOrder, err := service.orderFetchService.Fetch(orderEntity)
 	if err != nil {
 		service.logger.Error(err.Error())
 		return err
 	}
+
+	err = service.orderRepository.UpdateOrder(ctx, orderID, newOrder.Status, newOrder.Accrual)
+	if err != nil {
+		service.logger.Error(err.Error())
+		return err
+	}
+
+	service.logger.Info(fmt.Sprintf("order %s processed successfully", orderID),
+		zap.String("status", newOrder.Status),
+		zap.Float64("accrual", newOrder.Accrual),
+	)
 
 	return nil
 }
@@ -103,7 +103,11 @@ func (service *OrderService) LoadOrder(ctx context.Context, orderID string, user
 			service.logger.Error(err.Error())
 			return err
 		}
-		//TODO: send async task
+		err = service.messageBus.SendMessage(message.OrderProcessMessage{OrderID: orderID})
+		if err != nil {
+			service.logger.Error(err.Error())
+			return err
+		}
 		return nil
 	case err != nil && !errors.Is(err, domain_errors.ErrNotFound):
 		service.logger.Error(err.Error())

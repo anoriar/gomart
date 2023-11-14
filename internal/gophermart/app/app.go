@@ -6,18 +6,20 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/repository/user"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order"
+	"github.com/anoriar/gophermart/internal/gophermart/services/order/fetcher"
 	"github.com/anoriar/gophermart/internal/gophermart/services/ping"
 	"go.uber.org/zap"
 )
 
 type App struct {
-	Config         *config.Config
-	Logger         *zap.Logger
-	Database       *db.Database
-	PingService    ping.PingServiceInterface
-	AuthService    auth.AuthServiceInterface
-	OrderService   order.OrderServiceInterface
-	UserRepository user.UserRepositoryInterface
+	Config            *config.Config
+	Logger            *zap.Logger
+	Database          *db.Database
+	PingService       ping.PingServiceInterface
+	AuthService       auth.AuthServiceInterface
+	OrderService      order.OrderServiceInterface
+	OrderFetchService fetcher.OrderFetchServiceInterface
+	UserRepository    user.UserRepositoryInterface
 }
 
 func NewApp(
@@ -27,16 +29,18 @@ func NewApp(
 	pingService ping.PingServiceInterface,
 	authService auth.AuthServiceInterface,
 	orderService order.OrderServiceInterface,
+	orderFetchService fetcher.OrderFetchServiceInterface,
 	userRepository user.UserRepositoryInterface,
 ) *App {
 	return &App{
-		Config:         config,
-		Logger:         logger,
-		Database:       database,
-		PingService:    pingService,
-		AuthService:    authService,
-		OrderService:   orderService,
-		UserRepository: userRepository,
+		Config:            config,
+		Logger:            logger,
+		Database:          database,
+		PingService:       pingService,
+		AuthService:       authService,
+		OrderService:      orderService,
+		OrderFetchService: orderFetchService,
+		UserRepository:    userRepository,
 	}
 }
 

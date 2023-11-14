@@ -10,6 +10,6 @@ type Config struct {
 
 func NewConfig() *Config {
 	return &Config{
-		LogLevel: "info",
+		LogLevel: "debug",
 	}
 }
