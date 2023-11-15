@@ -29,3 +29,7 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTk5OTg5NjcsIlVz
 ### get orders
 GET {{baseUrl}}/api/user/orders
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTk4MDIyODgsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.4wMlGDgmey9gRH5RvLqMlNQFYLIOq9sUQtPsLuGUSQY
+
+### get user balance
+GET {{baseUrl}}/api/user/balance
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAwODk1NDYsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9._hLuquyaTrvJdXQxYh3ngnmdznj9gbvZeqFjsKUjIDI

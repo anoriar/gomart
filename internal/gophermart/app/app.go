@@ -3,8 +3,10 @@ package app
 import (
 	"github.com/anoriar/gophermart/internal/gophermart/app/db"
 	"github.com/anoriar/gophermart/internal/gophermart/config"
+	"github.com/anoriar/gophermart/internal/gophermart/repository/balance"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/user"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth"
+	balanceServicePkg "github.com/anoriar/gophermart/internal/gophermart/services/balance"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order/fetcher"
 	"github.com/anoriar/gophermart/internal/gophermart/services/ping"
@@ -20,6 +22,8 @@ type App struct {
 	OrderService      order.OrderServiceInterface
 	OrderFetchService fetcher.OrderFetchServiceInterface
 	UserRepository    user.UserRepositoryInterface
+	BalanceRepository balance.BalanceRepositoryInterface
+	BalanceService    balanceServicePkg.BalanceServiceInterface
 }
 
 func NewApp(
@@ -31,6 +35,8 @@ func NewApp(
 	orderService order.OrderServiceInterface,
 	orderFetchService fetcher.OrderFetchServiceInterface,
 	userRepository user.UserRepositoryInterface,
+	balanceRepository balance.BalanceRepositoryInterface,
+	balanceService balanceServicePkg.BalanceServiceInterface,
 ) *App {
 	return &App{
 		Config:            config,
@@ -41,6 +47,8 @@ func NewApp(
 		OrderService:      orderService,
 		OrderFetchService: orderFetchService,
 		UserRepository:    userRepository,
+		BalanceRepository: balanceRepository,
+		BalanceService:    balanceService,
 	}
 }
 

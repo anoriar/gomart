@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/anoriar/gophermart/internal/gophermart/app"
+	"github.com/anoriar/gophermart/internal/gophermart/handlers/balance"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/get_orders"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/load_order"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/login"
@@ -16,24 +17,26 @@ import (
 type Router struct {
 	loggerMiddleware   *logger.LoggerMiddleware
 	compressMiddleware *compress.CompressMiddleware
+	authMiddleware     *auth.AuthMiddleware
 	pingHandler        *ping.PingHandler
 	registerHandler    *register.RegisterHandler
 	loginHandler       *login.LoginHandler
 	loadOrderHandler   *load_order.LoadOrderHandler
 	getOrdersHandler   *get_orders.GetOrdersHandler
-	authMiddleware     *auth.AuthMiddleware
+	balanceHandler     *balance.BalanceHandler
 }
 
 func NewRouter(app *app.App) *Router {
 	return &Router{
 		loggerMiddleware:   logger.NewLoggerMiddleware(app.Logger),
 		compressMiddleware: compress.NewCompressMiddleware(),
+		authMiddleware:     auth.NewAuthMiddleware(app.AuthService),
 		pingHandler:        ping.NewPingHandler(app.PingService),
 		registerHandler:    register.NewRegisterHandler(app.AuthService),
 		loginHandler:       login.NewLoginHandler(app.AuthService),
 		loadOrderHandler:   load_order.NewLoadOrderHandler(app.OrderService),
 		getOrdersHandler:   get_orders.NewGetOrdersHandler(app.OrderService),
-		authMiddleware:     auth.NewAuthMiddleware(app.AuthService),
+		balanceHandler:     balance.NewBalanceHandler(app.BalanceService),
 	}
 }
 
@@ -48,6 +51,7 @@ func (r *Router) Route() chi.Router {
 	router.Post("/api/user/login", r.loginHandler.Login)
 	router.With(r.authMiddleware.Auth).Post("/api/user/orders", r.loadOrderHandler.LoadOrder)
 	router.With(r.authMiddleware.Auth).Get("/api/user/orders", r.getOrdersHandler.GetOrders)
+	router.With(r.authMiddleware.Auth).Get("/api/user/balance", r.balanceHandler.GetUserBalance)
 
 	return router
 }
