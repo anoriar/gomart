@@ -131,6 +131,29 @@ paths:
         500:
           description: внутренняя ошибка сервера
 
+  /api/user/balance/withdraw:
+    post:
+      description: Списание баллов
+      security:
+        - apiKey: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawRequest'
+
+      responses:
+        200:
+          description: заказ уже был загружен
+        401:
+          description: пользователь не авторизован
+        422:
+          description: неверный формат номера заказа
+        402:
+          description: на счету недостаточно средств
+        500:
+          description: внутренняя ошибка сервера
+
 components:
   schemas:
     UserRegisterRequest:
@@ -156,6 +179,16 @@ components:
     LoadOrderRequest:
       type: string
       example: 123456782
+
+    WithdrawRequest:
+      type: object
+      properties:
+        order:
+          type: string
+          example: 2377225624
+        sum:
+          type: number
+          example: 55.34
 
     PingResponse:
       type: object
