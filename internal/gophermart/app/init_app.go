@@ -11,11 +11,14 @@ import (
 	balanceRepositoryPkg "github.com/anoriar/gophermart/internal/gophermart/repository/balance"
 	orderPkg "github.com/anoriar/gophermart/internal/gophermart/repository/order"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/user"
+	withdrawalRepositoryPkg "github.com/anoriar/gophermart/internal/gophermart/repository/withdrawal"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/services/balance"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order/fetcher"
 	"github.com/anoriar/gophermart/internal/gophermart/services/ping"
+	"github.com/anoriar/gophermart/internal/gophermart/services/validator/id_validator"
+	"github.com/anoriar/gophermart/internal/gophermart/services/withdraw"
 	"net/http"
 )
 
@@ -35,11 +38,15 @@ func InitializeApp(ctx context.Context, conf *config.Config) (*App, error) {
 	orderRepository := orderPkg.NewOrderRepository(db)
 	accrualRepository := accrual.NewAccrualRepository(&http.Client{}, conf.AccrualSystemAddress)
 	balanceRepository := balanceRepositoryPkg.NewBalanceRepository(db)
+	withdrawalRepository := withdrawalRepositoryPkg.NewWithdrawalRepository(db)
+
+	idValidator := id_validator.NewLuhnValidator()
 
 	authService := auth.InitializeAuthService(conf, userRepository, logger)
 	orderFetchService := fetcher.NewOrderFetchService(accrualRepository)
-	orderService := order.NewOrderService(orderRepository, orderFetchService, messageBus, logger)
+	orderService := order.NewOrderService(orderRepository, orderFetchService, messageBus, idValidator, logger)
 	balanceService := balance.NewBalanceService(balanceRepository, logger)
+	withdrawService := withdraw.NewWithdrawService(withdrawalRepository, balanceService, idValidator, logger)
 
 	//запуск горутин
 	orderProcessorPkg.NewOrderProcessor(ctx, orderService, logger, messageBus.OrderProcessChan)
@@ -55,5 +62,7 @@ func InitializeApp(ctx context.Context, conf *config.Config) (*App, error) {
 		userRepository,
 		balanceRepository,
 		balanceService,
+		idValidator,
+		withdrawService,
 	), nil
 }

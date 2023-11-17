@@ -1,4 +1,4 @@
-package luhn_validator
+package id_validator
 
 import (
 	"strconv"

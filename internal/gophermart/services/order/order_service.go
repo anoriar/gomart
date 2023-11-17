@@ -12,7 +12,7 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/processors/order/message"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/order"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order/fetcher"
-	"github.com/anoriar/gophermart/internal/gophermart/services/order/internal/services/luhn_validator"
+	"github.com/anoriar/gophermart/internal/gophermart/services/validator/id_validator"
 	"go.uber.org/zap"
 )
 
@@ -20,7 +20,7 @@ type OrderService struct {
 	orderRepository   order.OrderRepositoryInterface
 	orderFetchService fetcher.OrderFetchServiceInterface
 	messageBus        bus.MessageBusInterface
-	luhnValidator     *luhn_validator.LuhnValidator
+	idValidator       id_validator.IdValidatorInterface
 	logger            *zap.Logger
 }
 
@@ -28,12 +28,13 @@ func NewOrderService(
 	orderRepository order.OrderRepositoryInterface,
 	orderFetchService fetcher.OrderFetchServiceInterface,
 	messageBus bus.MessageBusInterface,
+	idValidator id_validator.IdValidatorInterface,
 	logger *zap.Logger,
 ) *OrderService {
 	return &OrderService{
 		orderRepository:   orderRepository,
 		orderFetchService: orderFetchService,
-		luhnValidator:     luhn_validator.NewLuhnValidator(),
+		idValidator:       idValidator,
 		messageBus:        messageBus,
 		logger:            logger,
 	}
@@ -90,7 +91,7 @@ func (service *OrderService) GetUserOrders(ctx context.Context, userID string) (
 }
 
 func (service *OrderService) LoadOrder(ctx context.Context, orderID string, userID string) error {
-	if service.luhnValidator.Validate(orderID) == false {
+	if service.idValidator.Validate(orderID) == false {
 		return domain_errors.ErrOrderNumberNotValid
 	}
 	currentOrder, err := service.orderRepository.GetOrderByID(ctx, orderID)

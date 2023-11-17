@@ -33,3 +33,14 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTk4MDIyODgsIlVz
 ### get user balance
 GET {{baseUrl}}/api/user/balance
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAwODk1NDYsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9._hLuquyaTrvJdXQxYh3ngnmdznj9gbvZeqFjsKUjIDI
+
+
+### withdraw
+POST {{baseUrl}}/api/user/balance/withdraw
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAyNjIwOTgsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.wga3wOt2pnp76GtQZwdfOneTZqPb01nk6AQ34gIOj7A
+Content-Type: application/json
+
+{
+  "order": "2377225624",
+  "sum": 10
+}

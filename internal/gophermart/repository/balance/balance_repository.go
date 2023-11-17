@@ -24,13 +24,13 @@ func NewBalanceRepository(db *db.Database) *BalanceRepository {
 
 func (repository BalanceRepository) CreateBalance(ctx context.Context, updateDto balanceDtoPkg.UpdateBalanceDto) error {
 	_, err := repository.db.Conn.NamedExecContext(ctx,
-		`INSERT INTO balances (id, user_id, balance, withdrawal, updated_at) 
-			VALUES (:id, :user_id, :balance, :withdrawal, CURRENT_TIMESTAMP(3))`,
+		`INSERT INTO balances (id, user_id, balance, withdraw, updated_at) 
+			VALUES (:id, :user_id, :balance, :withdraw, CURRENT_TIMESTAMP(3))`,
 		map[string]interface{}{
-			":id":         uuid.NewString(),
-			":balance":    updateDto.Balance,
-			":withdrawal": updateDto.Withdrawal,
-			":user_id":    updateDto.UserID,
+			":id":       uuid.NewString(),
+			":balance":  updateDto.Balance,
+			":withdraw": updateDto.Withdrawal,
+			":user_id":  updateDto.UserID,
 		},
 	)
 	if err != nil {
@@ -46,12 +46,12 @@ func (repository BalanceRepository) CreateBalance(ctx context.Context, updateDto
 func (repository BalanceRepository) UpdateBalance(ctx context.Context, updateDto balanceDtoPkg.UpdateBalanceDto) error {
 	_, err := repository.db.Conn.NamedExecContext(ctx,
 		`UPDATE balances 
-				SET balance = :balance, withdrawal = :withdrawal, updated_at = CURRENT_TIMESTAMP(3) 
+				SET balance = :balance, withdraw = :withdraw, updated_at = CURRENT_TIMESTAMP(3) 
                 WHERE user_id = :user_id`,
 		map[string]interface{}{
-			":balance":    updateDto.Balance,
-			":withdrawal": updateDto.Withdrawal,
-			":user_id":    updateDto.UserID,
+			":balance":  updateDto.Balance,
+			":withdraw": updateDto.Withdrawal,
+			":user_id":  updateDto.UserID,
 		},
 	)
 	if err != nil {
