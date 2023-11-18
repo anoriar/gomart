@@ -17,7 +17,7 @@ func (factory GetOrdersResponseFactory) CreateOrdersResponse(orders []order.Orde
 	var response []orderRsponseDtoPkg.OrderResponseDto
 	for _, orderEntity := range orders {
 		response = append(response, orderRsponseDtoPkg.OrderResponseDto{
-			Number:     orderEntity.Id,
+			Number:     orderEntity.ID,
 			Status:     orderEntity.Status,
 			Accrual:    orderEntity.Accrual,
 			UploadedAt: orderEntity.UploadedAt.Format(time.RFC3339),

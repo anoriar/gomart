@@ -10,7 +10,7 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/services/order"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order/fetcher"
 	"github.com/anoriar/gophermart/internal/gophermart/services/ping"
-	"github.com/anoriar/gophermart/internal/gophermart/services/validator/id_validator"
+	"github.com/anoriar/gophermart/internal/gophermart/services/validator/idvalidator"
 	"github.com/anoriar/gophermart/internal/gophermart/services/withdraw"
 	"go.uber.org/zap"
 )
@@ -26,7 +26,7 @@ type App struct {
 	UserRepository    user.UserRepositoryInterface
 	BalanceRepository balance.BalanceRepositoryInterface
 	BalanceService    balanceServicePkg.BalanceServiceInterface
-	IdValidator       id_validator.IdValidatorInterface
+	IDValidator       idvalidator.IDValidatorInterface
 	WithdrawService   withdraw.WithdrawServiceInterface
 }
 
@@ -41,7 +41,7 @@ func NewApp(
 	userRepository user.UserRepositoryInterface,
 	balanceRepository balance.BalanceRepositoryInterface,
 	balanceService balanceServicePkg.BalanceServiceInterface,
-	idValidator id_validator.IdValidatorInterface,
+	idValidator idvalidator.IDValidatorInterface,
 	withdrawService withdraw.WithdrawServiceInterface,
 
 ) *App {
@@ -56,7 +56,7 @@ func NewApp(
 		UserRepository:    userRepository,
 		BalanceRepository: balanceRepository,
 		BalanceService:    balanceService,
-		IdValidator:       idValidator,
+		IDValidator:       idValidator,
 		WithdrawService:   withdrawService,
 	}
 }

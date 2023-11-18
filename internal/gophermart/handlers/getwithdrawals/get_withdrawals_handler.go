@@ -1,9 +1,9 @@
-package get_withdrawals
+package getwithdrawals
 
 import (
 	"encoding/json"
 	"github.com/anoriar/gophermart/internal/gophermart/context"
-	"github.com/anoriar/gophermart/internal/gophermart/handlers/get_withdrawals/internal/factory"
+	"github.com/anoriar/gophermart/internal/gophermart/handlers/getwithdrawals/internal/factory"
 	"github.com/anoriar/gophermart/internal/gophermart/services/withdraw"
 	"net/http"
 )
@@ -55,6 +55,4 @@ func (handler *GetWithdrawalsHandler) GetWithdrawals(w http.ResponseWriter, req 
 		http.Error(w, "internal Server Error", http.StatusInternalServerError)
 		return
 	}
-
-	return
 }

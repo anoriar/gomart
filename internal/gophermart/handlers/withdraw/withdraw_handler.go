@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/anoriar/gophermart/internal/gophermart/context"
-	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
+	"github.com/anoriar/gophermart/internal/gophermart/domainerrors"
 	withdrawRequestPkg "github.com/anoriar/gophermart/internal/gophermart/dto/requests/withdraw"
 	"github.com/anoriar/gophermart/internal/gophermart/services/withdraw"
 	"io"
@@ -46,10 +46,10 @@ func (handler *WithdrawHandler) Withdraw(w http.ResponseWriter, req *http.Reques
 	err = handler.withdrawService.Withdraw(req.Context(), userID, withdrawDto)
 	if err != nil {
 		switch {
-		case errors.Is(err, domain_errors.ErrOrderNumberNotValid):
+		case errors.Is(err, domainerrors.ErrOrderNumberNotValid):
 			http.Error(w, "not valid order number", http.StatusUnprocessableEntity)
 			return
-		case errors.Is(err, domain_errors.ErrInsufficientFunds):
+		case errors.Is(err, domainerrors.ErrInsufficientFunds):
 			http.Error(w, "insufficient funds", http.StatusPaymentRequired)
 			return
 		default:
@@ -59,5 +59,4 @@ func (handler *WithdrawHandler) Withdraw(w http.ResponseWriter, req *http.Reques
 	}
 
 	w.WriteHeader(http.StatusOK)
-	return
 }

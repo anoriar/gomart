@@ -1,9 +1,9 @@
-package get_orders
+package getorders
 
 import (
 	"encoding/json"
 	"github.com/anoriar/gophermart/internal/gophermart/context"
-	"github.com/anoriar/gophermart/internal/gophermart/handlers/get_orders/internal/factory"
+	"github.com/anoriar/gophermart/internal/gophermart/handlers/getorders/internal/factory"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order"
 	"net/http"
 )
@@ -55,6 +55,4 @@ func (handler *GetOrdersHandler) GetOrders(w http.ResponseWriter, req *http.Requ
 		http.Error(w, "internal Server Error", http.StatusInternalServerError)
 		return
 	}
-
-	return
 }

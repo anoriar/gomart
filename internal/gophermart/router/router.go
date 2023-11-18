@@ -3,9 +3,9 @@ package router
 import (
 	"github.com/anoriar/gophermart/internal/gophermart/app"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/balance"
-	"github.com/anoriar/gophermart/internal/gophermart/handlers/get_orders"
-	"github.com/anoriar/gophermart/internal/gophermart/handlers/get_withdrawals"
-	"github.com/anoriar/gophermart/internal/gophermart/handlers/load_order"
+	"github.com/anoriar/gophermart/internal/gophermart/handlers/getorders"
+	"github.com/anoriar/gophermart/internal/gophermart/handlers/getwithdrawals"
+	"github.com/anoriar/gophermart/internal/gophermart/handlers/loadorder"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/login"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/ping"
 	"github.com/anoriar/gophermart/internal/gophermart/handlers/register"
@@ -23,11 +23,11 @@ type Router struct {
 	pingHandler           *ping.PingHandler
 	registerHandler       *register.RegisterHandler
 	loginHandler          *login.LoginHandler
-	loadOrderHandler      *load_order.LoadOrderHandler
-	getOrdersHandler      *get_orders.GetOrdersHandler
+	loadOrderHandler      *loadorder.LoadOrderHandler
+	getOrdersHandler      *getorders.GetOrdersHandler
 	balanceHandler        *balance.BalanceHandler
 	withdrawHandler       *withdraw.WithdrawHandler
-	getWithdrawalsHandler *get_withdrawals.GetWithdrawalsHandler
+	getWithdrawalsHandler *getwithdrawals.GetWithdrawalsHandler
 }
 
 func NewRouter(app *app.App) *Router {
@@ -38,11 +38,11 @@ func NewRouter(app *app.App) *Router {
 		pingHandler:           ping.NewPingHandler(app.PingService),
 		registerHandler:       register.NewRegisterHandler(app.AuthService),
 		loginHandler:          login.NewLoginHandler(app.AuthService),
-		loadOrderHandler:      load_order.NewLoadOrderHandler(app.OrderService),
-		getOrdersHandler:      get_orders.NewGetOrdersHandler(app.OrderService),
+		loadOrderHandler:      loadorder.NewLoadOrderHandler(app.OrderService),
+		getOrdersHandler:      getorders.NewGetOrdersHandler(app.OrderService),
 		balanceHandler:        balance.NewBalanceHandler(app.BalanceService),
 		withdrawHandler:       withdraw.NewWithdrawHandler(app.WithdrawService),
-		getWithdrawalsHandler: get_withdrawals.NewGetWithdrawalsHandler(app.WithdrawService),
+		getWithdrawalsHandler: getwithdrawals.NewGetWithdrawalsHandler(app.WithdrawService),
 	}
 }
 

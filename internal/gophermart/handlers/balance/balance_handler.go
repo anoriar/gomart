@@ -46,6 +46,4 @@ func (handler *BalanceHandler) GetUserBalance(w http.ResponseWriter, req *http.R
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-
-	return
 }

@@ -15,15 +15,15 @@ func NewOrderFetchService(accrualRepository accrual.AccrualRepositoryInterface) 
 }
 
 func (service OrderFetchService) Fetch(orderEntity order.Order) (order.Order, error) {
-	status := orderEntity.Status
+	var status string
 	accrual := orderEntity.Accrual
 
-	extOrder, extOrderExists, err := service.accrualRepository.GetOrder(orderEntity.Id)
+	extOrder, extOrderExists, err := service.accrualRepository.GetOrder(orderEntity.ID)
 	if err != nil {
 		return orderEntity, err
 	}
-	if extOrderExists == false {
-		status = order.InvalidStatus
+	if !extOrderExists {
+		status = order.ProcessingStatus
 	} else {
 		switch extOrder.Status {
 		case accrualPkg.AccrualProcessedStatus:

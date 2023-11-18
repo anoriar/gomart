@@ -1,4 +1,4 @@
-package id_validator
+package idvalidator
 
 import (
 	"strconv"

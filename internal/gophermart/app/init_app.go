@@ -17,7 +17,7 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/services/order"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order/fetcher"
 	"github.com/anoriar/gophermart/internal/gophermart/services/ping"
-	"github.com/anoriar/gophermart/internal/gophermart/services/validator/id_validator"
+	"github.com/anoriar/gophermart/internal/gophermart/services/validator/idvalidator"
 	"github.com/anoriar/gophermart/internal/gophermart/services/withdraw"
 	"net/http"
 )
@@ -40,7 +40,7 @@ func InitializeApp(ctx context.Context, conf *config.Config) (*App, error) {
 	balanceRepository := balanceRepositoryPkg.NewBalanceRepository(db)
 	withdrawalRepository := withdrawalRepositoryPkg.NewWithdrawalRepository(db)
 
-	idValidator := id_validator.NewLuhnValidator()
+	idValidator := idvalidator.NewLuhnValidator()
 
 	authService := auth.InitializeAuthService(conf, userRepository, logger)
 	orderFetchService := fetcher.NewOrderFetchService(accrualRepository)

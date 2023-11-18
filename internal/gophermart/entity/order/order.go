@@ -10,7 +10,7 @@ const (
 )
 
 type Order struct {
-	Id         string    `db:"id"`
+	ID         string    `db:"id"`
 	Status     string    `db:"status"`
 	Accrual    float64   `db:"accrual"`
 	UploadedAt time.Time `db:"uploaded_at"`
@@ -22,7 +22,7 @@ func CreateNewOrder(
 	userID string,
 ) Order {
 	return Order{
-		Id:         id,
+		ID:         id,
 		Status:     NewStatus,
 		Accrual:    0,
 		UploadedAt: time.Now(),

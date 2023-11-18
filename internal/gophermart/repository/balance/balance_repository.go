@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/anoriar/gophermart/internal/gophermart/app/db"
-	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
+	"github.com/anoriar/gophermart/internal/gophermart/domainerrors"
 	balanceDtoPkg "github.com/anoriar/gophermart/internal/gophermart/dto/repository/balance"
 	"github.com/anoriar/gophermart/internal/gophermart/entity/balance"
 	"github.com/google/uuid"
@@ -37,9 +37,9 @@ func (repository BalanceRepository) createBalance(tx *sqlx.Tx, updateDto balance
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgerrcode.UniqueViolation == pgErr.Code {
-			return fmt.Errorf("CreateBalance: %w: %v", domain_errors.ErrConflict, err)
+			return fmt.Errorf("CreateBalance: %w: %v", domainerrors.ErrConflict, err)
 		}
-		return fmt.Errorf("CreateBalance: %w: %v", domain_errors.ErrInternalError, err)
+		return fmt.Errorf("CreateBalance: %w: %v", domainerrors.ErrInternalError, err)
 	}
 	return nil
 }
@@ -57,9 +57,9 @@ func (repository BalanceRepository) updateBalance(tx *sqlx.Tx, updateDto balance
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return fmt.Errorf("UpdateBalance: %w: %v", domain_errors.ErrNotFound, err)
+			return fmt.Errorf("UpdateBalance: %w: %v", domainerrors.ErrNotFound, err)
 		}
-		return fmt.Errorf("UpdateBalance: %w: %v", domain_errors.ErrInternalError, err)
+		return fmt.Errorf("UpdateBalance: %w: %v", domainerrors.ErrInternalError, err)
 	}
 	return nil
 }
@@ -68,7 +68,7 @@ func (repository BalanceRepository) UpsertBalance(ctx context.Context, userID st
 
 	tx, err := repository.db.Conn.BeginTxx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("UpsertBalance: %w: %v", domain_errors.ErrInternalError, err)
+		return fmt.Errorf("UpsertBalance: %w: %v", domainerrors.ErrInternalError, err)
 	}
 	defer tx.Rollback()
 
@@ -79,22 +79,22 @@ func (repository BalanceRepository) UpsertBalance(ctx context.Context, userID st
 			updateDto := calcFunc(nil)
 			err = repository.createBalance(tx, updateDto)
 			if err != nil {
-				return fmt.Errorf("UpsertBalance: %w: %v", domain_errors.ErrInternalError, err)
+				return fmt.Errorf("UpsertBalance: %w: %v", domainerrors.ErrInternalError, err)
 			}
 		} else {
-			return fmt.Errorf("UpsertBalance: %w: %v", domain_errors.ErrInternalError, err)
+			return fmt.Errorf("UpsertBalance: %w: %v", domainerrors.ErrInternalError, err)
 		}
 	} else {
 		updateDto := calcFunc(&balance)
 		err = repository.updateBalance(tx, updateDto)
 		if err != nil {
-			return fmt.Errorf("UpsertBalance: %w: %v", domain_errors.ErrInternalError, err)
+			return fmt.Errorf("UpsertBalance: %w: %v", domainerrors.ErrInternalError, err)
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return fmt.Errorf("UpsertBalance: %w: %v", domain_errors.ErrInternalError, err)
+		return fmt.Errorf("UpsertBalance: %w: %v", domainerrors.ErrInternalError, err)
 	}
 	return nil
 }
@@ -104,9 +104,9 @@ func (repository BalanceRepository) GetBalanceByUserID(ctx context.Context, user
 	err := repository.db.Conn.QueryRowxContext(ctx, "SELECT * FROM balances WHERE user_id = $1", userID).StructScan(&resultBalance)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return balance.Balance{}, fmt.Errorf("GetBalanceByUserID: %w: %v", domain_errors.ErrNotFound, err)
+			return balance.Balance{}, fmt.Errorf("GetBalanceByUserID: %w: %v", domainerrors.ErrNotFound, err)
 		}
-		return balance.Balance{}, fmt.Errorf("GetBalanceByUserID: %w: %v", domain_errors.ErrInternalError, err)
+		return balance.Balance{}, fmt.Errorf("GetBalanceByUserID: %w: %v", domainerrors.ErrInternalError, err)
 	}
 	return resultBalance, nil
 }

@@ -16,7 +16,7 @@ func NewWithdrawalFactory() *WithdrawalFactory {
 
 func (WithdrawalFactory) CreateEntityFromRequest(userID string, withdrawDto withdraw.WithdrawDto) withdrawal.Withdrawal {
 	return withdrawal.Withdrawal{
-		Id:          uuid.NewString(),
+		ID:          uuid.NewString(),
 		UserID:      userID,
 		OrderID:     withdrawDto.Order,
 		Sum:         withdrawDto.Sum,

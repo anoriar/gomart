@@ -27,11 +27,6 @@ func main() {
 
 	r := router.NewRouter(app)
 
-	if err != nil {
-		app.Logger.Fatal("init app error", zap.String("error", err.Error()))
-		panic(err)
-	}
-
 	err = http.ListenAndServe(conf.RunAddress, r.Route())
 	if err != nil {
 		app.Logger.Fatal("Server exception", zap.String("exception", err.Error()))

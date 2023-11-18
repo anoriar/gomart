@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"github.com/anoriar/gophermart/internal/gophermart/app/logger"
-	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
+	"github.com/anoriar/gophermart/internal/gophermart/domainerrors"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
 	"github.com/anoriar/gophermart/internal/gophermart/entity/user"
@@ -52,7 +52,7 @@ func TestAuthService_RegisterUser(t *testing.T) {
 				login := "test"
 				userPassword := "user-password"
 				userMock := user.User{
-					Id:       userID,
+					ID:       userID,
 					Login:    login,
 					Password: hashedPassword,
 					Salt:     encodedSalt,
@@ -83,7 +83,7 @@ func TestAuthService_RegisterUser(t *testing.T) {
 				login := "test"
 				userPassword := "user-password"
 				userMock := user.User{
-					Id:       userID,
+					ID:       userID,
 					Login:    login,
 					Password: hashedPassword,
 					Salt:     encodedSalt,
@@ -91,7 +91,7 @@ func TestAuthService_RegisterUser(t *testing.T) {
 				saltFactoryMock.EXPECT().GenerateSalt().Return(salt, nil).Times(1)
 				passwordServiceMock.EXPECT().GenerateHashedPassword(userPassword, salt).Return(hashedPassword).Times(1)
 				userFactoryMock.EXPECT().Create(login, hashedPassword, encodedSalt).Return(userMock).Times(1)
-				userRepositoryMock.EXPECT().AddUser(gomock.Any(), userMock).Return(domain_errors.ErrConflict).Times(1)
+				userRepositoryMock.EXPECT().AddUser(gomock.Any(), userMock).Return(domainerrors.ErrConflict).Times(1)
 				tokenServiceMock.EXPECT().BuildTokenString(auth.UserClaims{UserID: userID}).Times(0)
 			},
 			args: args{

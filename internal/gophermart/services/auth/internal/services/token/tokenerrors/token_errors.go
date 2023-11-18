@@ -1,4 +1,4 @@
-package token_errors
+package tokenerrors
 
 import "errors"
 

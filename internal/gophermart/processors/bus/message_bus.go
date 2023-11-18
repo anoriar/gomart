@@ -1,7 +1,7 @@
 package bus
 
 import (
-	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
+	"github.com/anoriar/gophermart/internal/gophermart/domainerrors"
 	"github.com/anoriar/gophermart/internal/gophermart/processors/order/message"
 )
 
@@ -16,11 +16,11 @@ func NewMessageBus() *MessageBus {
 }
 
 func (bus *MessageBus) SendMessage(msg interface{}) error {
-	switch msg.(type) {
+	switch m := msg.(type) {
 	case message.OrderProcessMessage:
-		bus.OrderProcessChan <- msg.(message.OrderProcessMessage)
+		bus.OrderProcessChan <- m
 	default:
-		return domain_errors.ErrNotValidTypeOfMessage
+		return domainerrors.ErrNotValidTypeOfMessage
 	}
 	return nil
 }

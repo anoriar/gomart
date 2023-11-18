@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
+	"github.com/anoriar/gophermart/internal/gophermart/domainerrors"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/repository"
 	orderQueryPkg "github.com/anoriar/gophermart/internal/gophermart/dto/repository/order"
 	orderPkg "github.com/anoriar/gophermart/internal/gophermart/entity/order"
@@ -13,7 +13,7 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/repository/order"
 	balanceServicePkg "github.com/anoriar/gophermart/internal/gophermart/services/balance"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order/fetcher"
-	"github.com/anoriar/gophermart/internal/gophermart/services/validator/id_validator"
+	"github.com/anoriar/gophermart/internal/gophermart/services/validator/idvalidator"
 	"go.uber.org/zap"
 )
 
@@ -22,7 +22,7 @@ type OrderService struct {
 	orderFetchService fetcher.OrderFetchServiceInterface
 	balanceService    balanceServicePkg.BalanceServiceInterface
 	messageBus        bus.MessageBusInterface
-	idValidator       id_validator.IdValidatorInterface
+	idValidator       idvalidator.IDValidatorInterface
 	logger            *zap.Logger
 }
 
@@ -31,7 +31,7 @@ func NewOrderService(
 	orderFetchService fetcher.OrderFetchServiceInterface,
 	balanceService balanceServicePkg.BalanceServiceInterface,
 	messageBus bus.MessageBusInterface,
-	idValidator id_validator.IdValidatorInterface,
+	idValidator idvalidator.IDValidatorInterface,
 	logger *zap.Logger,
 ) *OrderService {
 	return &OrderService{
@@ -102,13 +102,13 @@ func (service *OrderService) GetUserOrders(ctx context.Context, userID string) (
 }
 
 func (service *OrderService) LoadOrder(ctx context.Context, orderID string, userID string) error {
-	if service.idValidator.Validate(orderID) == false {
-		return domain_errors.ErrOrderNumberNotValid
+	if !service.idValidator.Validate(orderID) {
+		return domainerrors.ErrOrderNumberNotValid
 	}
 	currentOrder, err := service.orderRepository.GetOrderByID(ctx, orderID)
 
 	switch {
-	case err != nil && errors.Is(err, domain_errors.ErrNotFound):
+	case err != nil && errors.Is(err, domainerrors.ErrNotFound):
 		newOrder := orderPkg.CreateNewOrder(orderID, userID)
 		err := service.orderRepository.AddOrder(ctx, newOrder)
 		if err != nil {
@@ -121,15 +121,15 @@ func (service *OrderService) LoadOrder(ctx context.Context, orderID string, user
 			return err
 		}
 		return nil
-	case err != nil && !errors.Is(err, domain_errors.ErrNotFound):
+	case err != nil && !errors.Is(err, domainerrors.ErrNotFound):
 		service.logger.Error(err.Error())
 		return err
 	case currentOrder.UserID == userID:
-		return domain_errors.ErrOrderAlreadyLoaded
+		return domainerrors.ErrOrderAlreadyLoaded
 	case currentOrder.UserID != userID:
-		return domain_errors.ErrOrderLoadedByAnotherUser
+		return domainerrors.ErrOrderLoadedByAnotherUser
 	default:
 		service.logger.Error("unexpected behaviour")
-		return fmt.Errorf("unexpected behaviour %w", domain_errors.ErrInternalError)
+		return fmt.Errorf("unexpected behaviour %w", domainerrors.ErrInternalError)
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
-	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
+	"github.com/anoriar/gophermart/internal/gophermart/domainerrors"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/login"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/register"
@@ -13,7 +13,7 @@ import (
 	user2 "github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/factory/user"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/password"
 	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/token"
-	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/token/token_errors"
+	"github.com/anoriar/gophermart/internal/gophermart/services/auth/internal/services/token/tokenerrors"
 	"go.uber.org/zap"
 )
 
@@ -58,14 +58,14 @@ func (service *AuthService) RegisterUser(ctx context.Context, registerUserDto re
 	newUser := service.userFactory.Create(registerUserDto.Login, hashedPassword, hex.EncodeToString(salt))
 	err = service.userRepository.AddUser(ctx, newUser)
 	if err != nil {
-		if errors.Is(err, domain_errors.ErrConflict) {
+		if errors.Is(err, domainerrors.ErrConflict) {
 			return "", ErrUserAlreadyExists
 		}
 		service.logger.Error(err.Error())
 		return "", err
 	}
 
-	tokenString, err := service.tokenService.BuildTokenString(auth.UserClaims{UserID: newUser.Id})
+	tokenString, err := service.tokenService.BuildTokenString(auth.UserClaims{UserID: newUser.ID})
 	if err != nil {
 		service.logger.Error(err.Error())
 		return "", err
@@ -76,7 +76,7 @@ func (service *AuthService) RegisterUser(ctx context.Context, registerUserDto re
 func (service *AuthService) LoginUser(ctx context.Context, dto login.LoginUserRequestDto) (string, error) {
 	existedUser, err := service.userRepository.GetUserByLogin(ctx, dto.Login)
 	if err != nil {
-		if errors.Is(err, domain_errors.ErrNotFound) {
+		if errors.Is(err, domainerrors.ErrNotFound) {
 			return "", ErrUnauthorized
 		}
 		service.logger.Error(err.Error())
@@ -93,7 +93,7 @@ func (service *AuthService) LoginUser(ctx context.Context, dto login.LoginUserRe
 		return "", ErrUnauthorized
 	}
 
-	tokenString, err := service.tokenService.BuildTokenString(auth.UserClaims{UserID: existedUser.Id})
+	tokenString, err := service.tokenService.BuildTokenString(auth.UserClaims{UserID: existedUser.ID})
 	if err != nil {
 		service.logger.Error(err.Error())
 		return "", err
@@ -104,7 +104,7 @@ func (service *AuthService) LoginUser(ctx context.Context, dto login.LoginUserRe
 func (service *AuthService) ValidateToken(token string) (auth.UserClaims, error) {
 	claims, err := service.tokenService.GetUserClaims(token)
 	if err != nil {
-		if errors.Is(err, token_errors.ErrTokenNotValid) {
+		if errors.Is(err, tokenerrors.ErrTokenNotValid) {
 			return auth.UserClaims{}, ErrUnauthorized
 		}
 		service.logger.Error(err.Error())

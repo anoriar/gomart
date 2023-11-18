@@ -14,7 +14,7 @@ func NewUserFactory() *UserFactory {
 
 func (factory *UserFactory) Create(login string, password string, salt string) user.User {
 	return user.User{
-		Id:       uuid.NewString(),
+		ID:       uuid.NewString(),
 		Login:    login,
 		Password: password,
 		Salt:     salt,

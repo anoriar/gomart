@@ -19,5 +19,5 @@ func (db *Database) Ping() error {
 }
 
 func (db *Database) Close() {
-	db.Close()
+	db.Conn.Close()
 }

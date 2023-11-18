@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
+	"github.com/anoriar/gophermart/internal/gophermart/domainerrors"
 	balanceDtoPkg "github.com/anoriar/gophermart/internal/gophermart/dto/repository/balance"
 	balanceResponsePkg "github.com/anoriar/gophermart/internal/gophermart/dto/responses/balance"
 	balanceEntityPkg "github.com/anoriar/gophermart/internal/gophermart/entity/balance"
@@ -23,7 +23,7 @@ func NewBalanceService(balanceRepository balance.BalanceRepositoryInterface, log
 func (service BalanceService) GetUserBalance(ctx context.Context, userID string) (balanceResponsePkg.BalanceResponseDto, error) {
 	balanceResult, err := service.balanceRepository.GetBalanceByUserID(ctx, userID)
 	if err != nil {
-		if errors.Is(err, domain_errors.ErrNotFound) {
+		if errors.Is(err, domainerrors.ErrNotFound) {
 			//не ошибка - если у пользователя отсутсвует запись о балансе - возвращаем 0
 			return balanceResponsePkg.BalanceResponseDto{}, nil
 		}
