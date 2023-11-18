@@ -11,6 +11,7 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/processors/bus"
 	"github.com/anoriar/gophermart/internal/gophermart/processors/order/message"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/order"
+	balanceServicePkg "github.com/anoriar/gophermart/internal/gophermart/services/balance"
 	"github.com/anoriar/gophermart/internal/gophermart/services/order/fetcher"
 	"github.com/anoriar/gophermart/internal/gophermart/services/validator/id_validator"
 	"go.uber.org/zap"
@@ -19,6 +20,7 @@ import (
 type OrderService struct {
 	orderRepository   order.OrderRepositoryInterface
 	orderFetchService fetcher.OrderFetchServiceInterface
+	balanceService    balanceServicePkg.BalanceServiceInterface
 	messageBus        bus.MessageBusInterface
 	idValidator       id_validator.IdValidatorInterface
 	logger            *zap.Logger
@@ -27,6 +29,7 @@ type OrderService struct {
 func NewOrderService(
 	orderRepository order.OrderRepositoryInterface,
 	orderFetchService fetcher.OrderFetchServiceInterface,
+	balanceService balanceServicePkg.BalanceServiceInterface,
 	messageBus bus.MessageBusInterface,
 	idValidator id_validator.IdValidatorInterface,
 	logger *zap.Logger,
@@ -34,6 +37,7 @@ func NewOrderService(
 	return &OrderService{
 		orderRepository:   orderRepository,
 		orderFetchService: orderFetchService,
+		balanceService:    balanceService,
 		idValidator:       idValidator,
 		messageBus:        messageBus,
 		logger:            logger,
@@ -63,11 +67,18 @@ func (service *OrderService) ProcessOrder(ctx context.Context, orderID string) e
 		service.logger.Error(err.Error())
 		return err
 	}
-
 	service.logger.Info(fmt.Sprintf("order %s processed successfully", orderID),
 		zap.String("status", newOrder.Status),
 		zap.Float64("accrual", newOrder.Accrual),
 	)
+
+	if newOrder.Accrual > 0 && newOrder.Status == orderPkg.ProcessedStatus {
+		err := service.balanceService.UpdateUserBalance(ctx, newOrder.UserID, newOrder.Accrual, 0)
+		if err != nil {
+			service.logger.Error(err.Error())
+			return err
+		}
+	}
 
 	return nil
 }

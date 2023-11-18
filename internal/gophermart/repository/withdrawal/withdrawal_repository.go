@@ -37,14 +37,16 @@ func (repository WithdrawalRepository) CreateWithdrawal(ctx context.Context, wit
 
 func (repository WithdrawalRepository) GetWithdrawalsByUserID(ctx context.Context, userID string) ([]withdrawal.Withdrawal, error) {
 	var resultWithdrawals []withdrawal.Withdrawal
-	rows, err := repository.db.Conn.QueryxContext(ctx, "SELECT * FROM withdrawals WHERE user_id = $1", userID)
+	rows, err := repository.db.Conn.QueryxContext(ctx, "SELECT * FROM withdrawals WHERE user_id = $1 ORDER BY processed_at", userID)
+	defer rows.Close()
 
 	for rows.Next() {
 		var withdrawal withdrawal.Withdrawal
-		err := rows.StructScan(withdrawal)
+		err := rows.StructScan(&withdrawal)
 		if err != nil {
 			return resultWithdrawals, fmt.Errorf("GetWithdrawalsByUserID: %w: %v", domain_errors.ErrInternalError, err)
 		}
+		resultWithdrawals = append(resultWithdrawals, withdrawal)
 	}
 
 	if rows.Err() != nil {

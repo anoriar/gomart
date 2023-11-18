@@ -7,5 +7,5 @@ import (
 
 type BalanceServiceInterface interface {
 	GetUserBalance(ctx context.Context, userID string) (balanceResponsePkg.BalanceResponseDto, error)
-	SyncUserBalance(ctx context.Context, userID string) error
+	UpdateUserBalance(ctx context.Context, userID string, addSum float64, withdrawSum float64) error
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
 	"github.com/anoriar/gophermart/internal/gophermart/dto/requests/withdraw"
+	withdrawalPkg "github.com/anoriar/gophermart/internal/gophermart/entity/withdrawal"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/withdrawal"
 	balanceServicePkg "github.com/anoriar/gophermart/internal/gophermart/services/balance"
 	"github.com/anoriar/gophermart/internal/gophermart/services/validator/id_validator"
@@ -56,7 +57,21 @@ func (service WithdrawService) Withdraw(ctx context.Context, userID string, with
 		service.logger.Error(err.Error())
 		return fmt.Errorf("%w: %v", domain_errors.ErrInternalError, err)
 	}
-	//TODO: sync balance
+
+	err = service.balanceService.UpdateUserBalance(ctx, userID, 0, withdrawDto.Sum)
+	if err != nil {
+		service.logger.Error(err.Error())
+		return fmt.Errorf("%w: %v", domain_errors.ErrInternalError, err)
+	}
 
 	return nil
+}
+
+func (service WithdrawService) GetWithdrawalsByUserID(ctx context.Context, userID string) ([]withdrawalPkg.Withdrawal, error) {
+	result, err := service.withdrawalRepository.GetWithdrawalsByUserID(ctx, userID)
+	if err != nil {
+		service.logger.Error(err.Error())
+		return nil, fmt.Errorf("%w: %v", domain_errors.ErrInternalError, err)
+	}
+	return result, nil
 }

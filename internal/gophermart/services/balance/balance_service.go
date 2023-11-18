@@ -3,8 +3,11 @@ package balance
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/anoriar/gophermart/internal/gophermart/domain_errors"
+	balanceDtoPkg "github.com/anoriar/gophermart/internal/gophermart/dto/repository/balance"
 	balanceResponsePkg "github.com/anoriar/gophermart/internal/gophermart/dto/responses/balance"
+	balanceEntityPkg "github.com/anoriar/gophermart/internal/gophermart/entity/balance"
 	"github.com/anoriar/gophermart/internal/gophermart/repository/balance"
 	"go.uber.org/zap"
 )
@@ -33,7 +36,30 @@ func (service BalanceService) GetUserBalance(ctx context.Context, userID string)
 	}, nil
 }
 
-func (service BalanceService) SyncUserBalance(ctx context.Context, userID string) error {
-	//TODO implement me
-	panic("implement me")
+func (service BalanceService) UpdateUserBalance(ctx context.Context, userID string, addSum float64, withdrawSum float64) error {
+	err := service.balanceRepository.UpsertBalance(ctx, userID, func(currentBalance *balanceEntityPkg.Balance) balanceDtoPkg.UpdateBalanceDto {
+		if currentBalance == nil {
+			return balanceDtoPkg.UpdateBalanceDto{
+				UserID:     userID,
+				Balance:    addSum,
+				Withdrawal: withdrawSum,
+			}
+		} else {
+			return balanceDtoPkg.UpdateBalanceDto{
+				UserID:     userID,
+				Balance:    currentBalance.Balance + addSum - withdrawSum,
+				Withdrawal: currentBalance.Withdrawal + withdrawSum,
+			}
+		}
+	})
+	if err != nil {
+		service.logger.Error(err.Error())
+		return err
+	}
+
+	service.logger.Info(fmt.Sprintf("user_id %s balance updated successfully", userID),
+		zap.Float64("addSum", addSum),
+		zap.Float64("withdrawSum", withdrawSum),
+	)
+	return nil
 }

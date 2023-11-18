@@ -7,7 +7,6 @@ import (
 )
 
 type BalanceRepositoryInterface interface {
-	CreateBalance(ctx context.Context, updateDto balanceDtoPkg.UpdateBalanceDto) error
-	UpdateBalance(ctx context.Context, updateDto balanceDtoPkg.UpdateBalanceDto) error
+	UpsertBalance(ctx context.Context, userID string, calcFunc func(curBalance *balance.Balance) balanceDtoPkg.UpdateBalanceDto) error
 	GetBalanceByUserID(ctx context.Context, userID string) (balance.Balance, error)
 }

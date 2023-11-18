@@ -44,8 +44,9 @@ func InitializeApp(ctx context.Context, conf *config.Config) (*App, error) {
 
 	authService := auth.InitializeAuthService(conf, userRepository, logger)
 	orderFetchService := fetcher.NewOrderFetchService(accrualRepository)
-	orderService := order.NewOrderService(orderRepository, orderFetchService, messageBus, idValidator, logger)
 	balanceService := balance.NewBalanceService(balanceRepository, logger)
+	orderService := order.NewOrderService(orderRepository, orderFetchService, balanceService, messageBus, idValidator, logger)
+
 	withdrawService := withdraw.NewWithdrawService(withdrawalRepository, balanceService, idValidator, logger)
 
 	//запуск горутин
