@@ -22,10 +22,29 @@ Content-Type: application/json
 ### load order
 POST {{baseUrl}}/api/user/orders
 Content-Type: text/plain
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTk5OTg5NjcsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.AnR-ne7wuKlbEzkTjDkplFujdLK1uYyW4U-J_IXUw2c
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMTMwNzgsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.5Nyfucn8uOLm5EXR2CViQdcq7ZGaaN3ONMFiDRMj_vc
 
 123456782
 
 ### get orders
 GET {{baseUrl}}/api/user/orders
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTk4MDIyODgsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.4wMlGDgmey9gRH5RvLqMlNQFYLIOq9sUQtPsLuGUSQY
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMTMwNzgsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.5Nyfucn8uOLm5EXR2CViQdcq7ZGaaN3ONMFiDRMj_vc
+
+### get user balance
+GET {{baseUrl}}/api/user/balance
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMTMwNzgsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.5Nyfucn8uOLm5EXR2CViQdcq7ZGaaN3ONMFiDRMj_vc
+
+
+### withdraw
+POST {{baseUrl}}/api/user/balance/withdraw
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMTMwNzgsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.5Nyfucn8uOLm5EXR2CViQdcq7ZGaaN3ONMFiDRMj_vc
+Content-Type: application/json
+
+{
+  "order": "2377225624",
+  "sum": 10
+}
+
+### get withdrawals
+GET {{baseUrl}}/api/user/withdrawals
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMTMwNzgsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.5Nyfucn8uOLm5EXR2CViQdcq7ZGaaN3ONMFiDRMj_vc

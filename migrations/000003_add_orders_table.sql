@@ -13,7 +13,7 @@ CREATE INDEX IF NOT EXISTS idx_status on orders (status);
 
 
 -- +goose Down
-DROP TABLE users;
+DROP TABLE orders;
 DROP INDEX IF EXISTS uniq_idx_id_user_id;
 DROP INDEX IF EXISTS idx_user_id;
 DROP INDEX IF EXISTS idx_status;

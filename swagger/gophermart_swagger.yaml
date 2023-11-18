@@ -114,6 +114,64 @@ paths:
         500:
           description: внутренняя ошибка сервера
 
+  /api/user/balance:
+    get:
+      description: Баланс пользователя
+      security:
+        - apiKey: [ ]
+      responses:
+        200:
+          description: успешная обработка запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        401:
+          description: пользователь не авторизован
+        500:
+          description: внутренняя ошибка сервера
+
+  /api/user/balance/withdraw:
+    post:
+      description: Списание баллов
+      security:
+        - apiKey: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawRequest'
+
+      responses:
+        200:
+          description: заказ уже был загружен
+        401:
+          description: пользователь не авторизован
+        422:
+          description: неверный формат номера заказа
+        402:
+          description: на счету недостаточно средств
+        500:
+          description: внутренняя ошибка сервера
+
+  /api/user/withdrawals:
+    get:
+      description: Получение информации о выводе средств
+      security:
+        - apiKey: [ ]
+      responses:
+        200:
+          description: успешная обработка запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WithdrawalsResponse'
+        204:
+          description: нет данных для ответа
+        401:
+          description: пользователь не авторизован
+        500:
+          description: внутренняя ошибка сервера
 
 components:
   schemas:
@@ -140,6 +198,16 @@ components:
     LoadOrderRequest:
       type: string
       example: 123456782
+
+    WithdrawRequest:
+      type: object
+      properties:
+        order:
+          type: string
+          example: 2377225624
+        sum:
+          type: number
+          example: 55.34
 
     PingResponse:
       type: object
@@ -172,6 +240,23 @@ components:
       items:
         $ref: '#/components/schemas/Order'
 
+    BalanceResponse:
+      type: object
+      properties:
+        current:
+          type: number
+          description: текущий баланс пользователя
+          example: 500.5
+        withdrawn:
+          type: number
+          description: сумма использованных баллов
+          example: 200.2
+
+    WithdrawalsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Withdrawal'
+
     Order:
       type: object
       properties:
@@ -195,6 +280,22 @@ components:
         uploaded_at:
           type: string
           description: Дата загрузки заказа в формате RFC3339
+          example: 2020-12-10T15:15:45+03:00
+
+    Withdrawal:
+      type: object
+      properties:
+        order:
+          type: string
+          description: ID заказа
+          example: "9278923470"
+        sum:
+          type: number
+          description: Количество списанных баллов
+          example: 500.30
+        processed_at:
+          type: string
+          description: Дата списания в формате RFC3339
           example: 2020-12-10T15:15:45+03:00
 
   securitySchemes:
