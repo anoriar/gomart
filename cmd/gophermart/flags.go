@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/anoriar/gophermart/internal/gophermart/config"
+	"github.com/anoriar/gophermart/internal/gophermart/shared/config"
 )
 
 func parseFlags(config *config.Config) {

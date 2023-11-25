@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	appPkg "github.com/anoriar/gophermart/internal/gophermart/app"
-	"github.com/anoriar/gophermart/internal/gophermart/config"
-	"github.com/anoriar/gophermart/internal/gophermart/router"
+	appPkg "github.com/anoriar/gophermart/internal/gophermart/shared/app"
+	"github.com/anoriar/gophermart/internal/gophermart/shared/config"
+	"github.com/anoriar/gophermart/internal/gophermart/shared/router"
 	"github.com/caarlos0/env/v6"
 	"go.uber.org/zap"
 	"net/http"
