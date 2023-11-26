@@ -17,12 +17,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Download statictest binary
+      - name: Download statictest-arm64 binary
         uses: robinraju/release-downloader@v1.8
         with:
           repository: Yandex-Practicum/go-autotests
           tag: "v0.9.16"
-          fileName: statictest
+          fileName: statictest-arm64
           out-file-path: .tools
 
       - name: Setup autotest binary
@@ -30,6 +30,6 @@ jobs:
           chmod -R +x $GITHUB_WORKSPACE/.tools/statictest
           mv $GITHUB_WORKSPACE/.tools/statictest /usr/local/bin/statictest
 
-      - name: Run statictest
+      - name: Run statictest-arm64
         run: |
           go vet -vettool=$(which statictest) ./...

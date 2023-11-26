@@ -1,6 +1,6 @@
 package repository
 
 type OrdersFilterDto struct {
-	UserID string
-	Status string
+	UserID   string
+	Statuses []string
 }

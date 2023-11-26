@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 	balanceServicePkg "github.com/anoriar/gophermart/internal/gophermart/balance/services/balance"
-	repository2 "github.com/anoriar/gophermart/internal/gophermart/order/dto/repository"
+	orderRepositoryDtoPkg "github.com/anoriar/gophermart/internal/gophermart/order/dto/repository"
 	orderPkg "github.com/anoriar/gophermart/internal/gophermart/order/entity"
 	errors2 "github.com/anoriar/gophermart/internal/gophermart/order/errors"
-	"github.com/anoriar/gophermart/internal/gophermart/order/processors/message"
-	repository3 "github.com/anoriar/gophermart/internal/gophermart/order/repository"
+	"github.com/anoriar/gophermart/internal/gophermart/order/processors/orderprocess/message"
+	orderRepositoryPkg "github.com/anoriar/gophermart/internal/gophermart/order/repository"
 	"github.com/anoriar/gophermart/internal/gophermart/order/services/fetcher"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/dto/repository"
 	errors3 "github.com/anoriar/gophermart/internal/gophermart/shared/errors"
@@ -19,7 +19,7 @@ import (
 )
 
 type OrderService struct {
-	orderRepository   repository3.OrderRepositoryInterface
+	orderRepository   orderRepositoryPkg.OrderRepositoryInterface
 	orderFetchService fetcher.OrderFetchServiceInterface
 	balanceService    balanceServicePkg.BalanceServiceInterface
 	messageBus        bus.MessageBusInterface
@@ -28,7 +28,7 @@ type OrderService struct {
 }
 
 func NewOrderService(
-	orderRepository repository3.OrderRepositoryInterface,
+	orderRepository orderRepositoryPkg.OrderRepositoryInterface,
 	orderFetchService fetcher.OrderFetchServiceInterface,
 	balanceService balanceServicePkg.BalanceServiceInterface,
 	messageBus bus.MessageBusInterface,
@@ -74,7 +74,7 @@ func (service *OrderService) ProcessOrder(ctx context.Context, orderID string) e
 	)
 
 	if newOrder.Accrual > 0 && newOrder.Status == orderPkg.ProcessedStatus {
-		err := service.balanceService.UpdateUserBalance(ctx, newOrder.UserID, newOrder.Accrual, 0)
+		err := service.balanceService.AddUserBalance(ctx, newOrder.UserID, newOrder.Accrual)
 		if err != nil {
 			service.logger.Error(err.Error())
 			return err
@@ -85,12 +85,12 @@ func (service *OrderService) ProcessOrder(ctx context.Context, orderID string) e
 }
 
 func (service *OrderService) GetUserOrders(ctx context.Context, userID string) ([]orderPkg.Order, error) {
-	orders, err := service.orderRepository.GetOrders(ctx, repository2.OrdersQuery{
-		Filter: repository2.OrdersFilterDto{
+	orders, err := service.orderRepository.GetOrders(ctx, orderRepositoryDtoPkg.OrdersQuery{
+		Filter: orderRepositoryDtoPkg.OrdersFilterDto{
 			UserID: userID,
 		},
 		Sort: repository.SortDto{
-			By:        repository2.ByUploadedAt,
+			By:        orderRepositoryDtoPkg.ByUploadedAt,
 			Direction: repository.AscDirection,
 		},
 	})
@@ -133,4 +133,12 @@ func (service *OrderService) LoadOrder(ctx context.Context, orderID string, user
 		service.logger.Error("unexpected behaviour")
 		return fmt.Errorf("unexpected behaviour %w", errors3.ErrInternalError)
 	}
+}
+
+func (service *OrderService) GetOrders(ctx context.Context, query orderRepositoryDtoPkg.OrdersQuery) ([]orderPkg.Order, error) {
+	return service.orderRepository.GetOrders(ctx, query)
+}
+
+func (service *OrderService) GetOrdersTotal(ctx context.Context, filter orderRepositoryDtoPkg.OrdersFilterDto) (int, error) {
+	return service.orderRepository.GetTotal(ctx, filter)
 }

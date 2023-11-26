@@ -82,15 +82,20 @@ func (repository *OrderRepository) buildSort(queryRowSlice *[]string, sortDto re
 	}
 }
 
-func (repository *OrderRepository) buildFilter(queryRowSlice *[]string, queryParams map[string]interface{}, filterDto orderRepositoryDtoPkg.OrdersFilterDto) {
+func (repository *OrderRepository) buildFilter(queryRowSlice *[]string, queryParams *[]interface{}, filterDto orderRepositoryDtoPkg.OrdersFilterDto) {
 	var filters []string
 	if filterDto.UserID != "" {
-		filters = append(filters, "user_id = :userID")
-		queryParams["userID"] = filterDto.UserID
+		filters = append(filters, "user_id = ?")
+		*queryParams = append(*queryParams, filterDto.UserID)
 	}
-	if filterDto.Status != "" {
-		filters = append(filters, "status = :status")
-		queryParams["status"] = filterDto.Status
+	if len(filterDto.Statuses) > 0 {
+
+		var statusPlaceholders []string
+		for _, statusStr := range filterDto.Statuses {
+			statusPlaceholders = append(statusPlaceholders, "?")
+			*queryParams = append(*queryParams, statusStr)
+		}
+		filters = append(filters, fmt.Sprintf("status IN (%s)", strings.Join(statusPlaceholders, ", ")))
 	}
 
 	if len(filters) != 0 {
@@ -98,28 +103,29 @@ func (repository *OrderRepository) buildFilter(queryRowSlice *[]string, queryPar
 	}
 }
 
-func (repository *OrderRepository) buildPagination(queryRowSlice *[]string, queryParams map[string]interface{}, paginationDto repositoryDtoPkg.PaginationDto) {
-	*queryRowSlice = append(*queryRowSlice, "OFFSET :offset")
-	queryParams["offset"] = paginationDto.Offset
+func (repository *OrderRepository) buildPagination(queryRowSlice *[]string, queryParams *[]interface{}, paginationDto repositoryDtoPkg.PaginationDto) {
+	*queryRowSlice = append(*queryRowSlice, "OFFSET ?")
+	*queryParams = append(*queryParams, paginationDto.Offset)
 
 	if paginationDto.Limit != 0 {
-		*queryRowSlice = append(*queryRowSlice, "LIMIT :limit")
-		queryParams["limit"] = paginationDto.Limit
+		*queryRowSlice = append(*queryRowSlice, "LIMIT ?")
+		*queryParams = append(*queryParams, paginationDto.Limit)
 	}
 }
 
 func (repository *OrderRepository) GetOrders(ctx context.Context, query orderRepositoryDtoPkg.OrdersQuery) ([]entity.Order, error) {
 	var orders []entity.Order
-	queryParams := make(map[string]interface{})
+	var queryParams []interface{}
 	var queryRowSlice []string
 	queryRowSlice = append(queryRowSlice, "SELECT id, user_id, status, accrual, uploaded_at FROM orders")
 
-	repository.buildFilter(&queryRowSlice, queryParams, query.Filter)
+	repository.buildFilter(&queryRowSlice, &queryParams, query.Filter)
 	repository.buildSort(&queryRowSlice, query.Sort)
-	repository.buildPagination(&queryRowSlice, queryParams, query.Pagination)
+	repository.buildPagination(&queryRowSlice, &queryParams, query.Pagination)
 
 	queryRow := strings.Join(queryRowSlice, " ")
-	rows, err := repository.db.Conn.NamedQueryContext(ctx, queryRow, queryParams)
+	queryRow = repository.db.Conn.Rebind(queryRow)
+	rows, err := repository.db.Conn.QueryContext(ctx, queryRow, queryParams...)
 	if err != nil {
 		return nil, fmt.Errorf("order repository GetOrders: %w: %v", errors2.ErrInternalError, err)
 	}
@@ -143,7 +149,20 @@ func (repository *OrderRepository) GetOrders(ctx context.Context, query orderRep
 }
 
 func (repository *OrderRepository) GetTotal(ctx context.Context, filter orderRepositoryDtoPkg.OrdersFilterDto) (int, error) {
+	var count int
+	var queryParams []interface{}
+	var queryRowSlice []string
+	queryRowSlice = append(queryRowSlice, "SELECT count(*) FROM orders")
 
-	//TODO implement me
-	panic("implement me")
+	repository.buildFilter(&queryRowSlice, &queryParams, filter)
+
+	queryRow := strings.Join(queryRowSlice, " ")
+	queryRow = repository.db.Conn.Rebind(queryRow)
+
+	err := repository.db.Conn.GetContext(ctx, &count, queryRow, queryParams...)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

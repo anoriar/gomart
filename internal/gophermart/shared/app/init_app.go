@@ -6,7 +6,8 @@ import (
 	withdrawalRepositoryPkg "github.com/anoriar/gophermart/internal/gophermart/balance/repository/withdrawal"
 	"github.com/anoriar/gophermart/internal/gophermart/balance/services/balance"
 	"github.com/anoriar/gophermart/internal/gophermart/balance/services/withdraw"
-	orderProcessorPkg "github.com/anoriar/gophermart/internal/gophermart/order/processors"
+	orderProcessorPkg "github.com/anoriar/gophermart/internal/gophermart/order/processors/orderprocess"
+	orderprocess "github.com/anoriar/gophermart/internal/gophermart/order/processors/syncfailed"
 	orderPkg "github.com/anoriar/gophermart/internal/gophermart/order/repository"
 	"github.com/anoriar/gophermart/internal/gophermart/order/repository/accrual"
 	"github.com/anoriar/gophermart/internal/gophermart/order/services"
@@ -32,13 +33,13 @@ func InitializeApp(ctx context.Context, conf *config.Config) (*App, error) {
 		return nil, err
 	}
 
-	messageBus := bus.NewMessageBus()
+	messageBus := bus.NewMessageBus(logger)
 
 	userRepository := repository.NewUserRepository(db)
 	orderRepository := orderPkg.NewOrderRepository(db)
 	accrualRepository := accrual.NewAccrualRepository(&http.Client{}, conf.AccrualSystemAddress)
-	balanceRepository := balanceRepositoryPkg.NewBalanceRepository(db)
 	withdrawalRepository := withdrawalRepositoryPkg.NewWithdrawalRepository(db)
+	balanceRepository := balanceRepositoryPkg.NewBalanceRepository(db, withdrawalRepository)
 
 	idValidator := idvalidator.NewLuhnValidator()
 
@@ -51,6 +52,7 @@ func InitializeApp(ctx context.Context, conf *config.Config) (*App, error) {
 
 	//запуск горутин
 	orderProcessorPkg.NewOrderProcessor(ctx, orderService, logger, messageBus.OrderProcessChan)
+	orderprocess.NewOrderSyncFailedProcessor(ctx, orderService, logger, messageBus)
 
 	return NewApp(
 		conf,

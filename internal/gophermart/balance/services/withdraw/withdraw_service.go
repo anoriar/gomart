@@ -8,7 +8,6 @@ import (
 	errors2 "github.com/anoriar/gophermart/internal/gophermart/balance/errors"
 	"github.com/anoriar/gophermart/internal/gophermart/balance/repository/withdrawal"
 	balanceServicePkg "github.com/anoriar/gophermart/internal/gophermart/balance/services/balance"
-	"github.com/anoriar/gophermart/internal/gophermart/balance/services/withdraw/internal/factory"
 	"github.com/anoriar/gophermart/internal/gophermart/order/errors"
 	errors3 "github.com/anoriar/gophermart/internal/gophermart/shared/errors"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/services/validator/idvalidator"
@@ -18,7 +17,6 @@ import (
 type WithdrawService struct {
 	withdrawalRepository withdrawal.WithdrawalRepositoryInterface
 	balanceService       balanceServicePkg.BalanceServiceInterface
-	withdrawalFactory    *factory.WithdrawalFactory
 	idValidator          idvalidator.IDValidatorInterface
 	logger               *zap.Logger
 }
@@ -32,7 +30,6 @@ func NewWithdrawService(
 	return &WithdrawService{
 		withdrawalRepository: withdrawalRepository,
 		balanceService:       balanceService,
-		withdrawalFactory:    factory.NewWithdrawalFactory(),
 		idValidator:          idValidator,
 		logger:               logger,
 	}
@@ -53,14 +50,7 @@ func (service WithdrawService) Withdraw(ctx context.Context, userID string, with
 		return errors2.ErrInsufficientFunds
 	}
 
-	withdrawalEntity := service.withdrawalFactory.CreateEntityFromRequest(userID, withdrawDto)
-	err = service.withdrawalRepository.CreateWithdrawal(ctx, withdrawalEntity)
-	if err != nil {
-		service.logger.Error(err.Error())
-		return fmt.Errorf("%w: %v", errors3.ErrInternalError, err)
-	}
-
-	err = service.balanceService.UpdateUserBalance(ctx, userID, 0, withdrawDto.Sum)
+	err = service.balanceService.WithdrawUserBalance(ctx, userID, withdrawDto)
 	if err != nil {
 		service.logger.Error(err.Error())
 		return fmt.Errorf("%w: %v", errors3.ErrInternalError, err)
