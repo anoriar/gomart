@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	appPkg "github.com/anoriar/gophermart/internal/gophermart/shared/app"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/config"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/router"
@@ -11,6 +12,7 @@ import (
 )
 
 func main() {
+	fmt.Println("111")
 	conf := config.NewConfig()
 	parseFlags(conf)
 

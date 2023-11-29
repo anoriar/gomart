@@ -53,3 +53,15 @@ vet
 -vettool=/Users/borisov/GoProjects/yandex/gophermart/statictest
 ./...
 ```
+
+# e2e тесты
+
+1. Запустить docker-compose up -d
+
+2. Скомпилировать main.go в cmd/gophermart/gophermart (папку можно настроить свою, но тогда и в перменных окружения запуска теста ее также нужно будет задать)
+
+3. В Goland Add Configuration -> go test
+
+4. Run kind = Directory; Directory = к значению, что ide прописало автоматически, надо добавить ```/cmd/e2e```
+
+5. ENVIRONMENT скопировать из ```.env.e2e-example```
