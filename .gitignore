@@ -23,3 +23,5 @@ vendor/
 .vscode
 /.env
 /.docker/data
+/cmd/e2e/stderr.log
+/cmd/e2e/stdout.log

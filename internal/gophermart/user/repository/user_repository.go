@@ -47,3 +47,34 @@ func (repository *UserRepository) GetUserByLogin(ctx context.Context, login stri
 	}
 	return userRes, nil
 }
+
+func (repository *UserRepository) DeleteUser(ctx context.Context, userID string) error {
+
+	txx, err := repository.db.Conn.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+	}
+	defer txx.Rollback()
+
+	_, err = txx.ExecContext(ctx, "DELETE from users WHERE id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+	}
+	_, err = txx.ExecContext(ctx, "DELETE from balances WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+	}
+	_, err = txx.ExecContext(ctx, "DELETE from orders WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+	}
+	_, err = txx.ExecContext(ctx, "DELETE from withdrawals WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+	}
+	err = txx.Commit()
+	if err != nil {
+		return fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+	}
+	return nil
+}

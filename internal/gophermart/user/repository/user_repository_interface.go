@@ -9,4 +9,5 @@ import (
 type UserRepositoryInterface interface {
 	AddUser(ctx context.Context, user entity.User) error
 	GetUserByLogin(ctx context.Context, login string) (entity.User, error)
+	DeleteUser(ctx context.Context, userID string) error
 }

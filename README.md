@@ -62,6 +62,6 @@ vet
 
 3. В Goland Add Configuration -> go test
 
-4. Run kind = Directory; Directory = к значению, что ide прописало автоматически, надо добавить ```/cmd/e2e```
+4. Run kind = Package;
 
 5. ENVIRONMENT скопировать из ```.env.e2e-example```

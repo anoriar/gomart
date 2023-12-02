@@ -6,9 +6,9 @@ package mock_user_repository
 
 import (
 	context "context"
-	user "github.com/anoriar/gophermart/internal/gophermart/user/entity"
 	reflect "reflect"
 
+	entity "github.com/anoriar/gophermart/internal/gophermart/user/entity"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -36,7 +36,7 @@ func (m *MockUserRepositoryInterface) EXPECT() *MockUserRepositoryInterfaceMockR
 }
 
 // AddUser mocks base method.
-func (m *MockUserRepositoryInterface) AddUser(ctx context.Context, user user.User) error {
+func (m *MockUserRepositoryInterface) AddUser(ctx context.Context, user entity.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddUser", ctx, user)
 	ret0, _ := ret[0].(error)
@@ -49,11 +49,25 @@ func (mr *MockUserRepositoryInterfaceMockRecorder) AddUser(ctx, user interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUser", reflect.TypeOf((*MockUserRepositoryInterface)(nil).AddUser), ctx, user)
 }
 
+// DeleteUser mocks base method.
+func (m *MockUserRepositoryInterface) DeleteUser(ctx context.Context, userID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUser", ctx, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUser indicates an expected call of DeleteUser.
+func (mr *MockUserRepositoryInterfaceMockRecorder) DeleteUser(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockUserRepositoryInterface)(nil).DeleteUser), ctx, userID)
+}
+
 // GetUserByLogin mocks base method.
-func (m *MockUserRepositoryInterface) GetUserByLogin(ctx context.Context, login string) (user.User, error) {
+func (m *MockUserRepositoryInterface) GetUserByLogin(ctx context.Context, login string) (entity.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByLogin", ctx, login)
-	ret0, _ := ret[0].(user.User)
+	ret0, _ := ret[0].(entity.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

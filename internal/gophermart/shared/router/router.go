@@ -11,6 +11,7 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/shared/middleware/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/middleware/compress"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/middleware/logger"
+	"github.com/anoriar/gophermart/internal/gophermart/user/handlers/delete"
 	"github.com/anoriar/gophermart/internal/gophermart/user/handlers/login"
 	"github.com/anoriar/gophermart/internal/gophermart/user/handlers/register"
 	"github.com/go-chi/chi/v5"
@@ -28,6 +29,7 @@ type Router struct {
 	balanceHandler        *balance.BalanceHandler
 	withdrawHandler       *withdraw.WithdrawHandler
 	getWithdrawalsHandler *getwithdrawals.GetWithdrawalsHandler
+	userDeleteHandler     *delete.DeleteHandler
 }
 
 func NewRouter(app *app.App) *Router {
@@ -43,6 +45,7 @@ func NewRouter(app *app.App) *Router {
 		balanceHandler:        balance.NewBalanceHandler(app.BalanceService),
 		withdrawHandler:       withdraw.NewWithdrawHandler(app.WithdrawService),
 		getWithdrawalsHandler: getwithdrawals.NewGetWithdrawalsHandler(app.WithdrawService),
+		userDeleteHandler:     delete.NewDeleteHandler(app.UserRepository),
 	}
 }
 
@@ -60,6 +63,7 @@ func (r *Router) Route() chi.Router {
 	router.With(r.authMiddleware.Auth).Get("/api/user/balance", r.balanceHandler.GetUserBalance)
 	router.With(r.authMiddleware.Auth).Post("/api/user/balance/withdraw", r.withdrawHandler.Withdraw)
 	router.With(r.authMiddleware.Auth).Get("/api/user/withdrawals", r.getWithdrawalsHandler.GetWithdrawals)
+	router.With(r.authMiddleware.Auth).Delete("/api/user", r.userDeleteHandler.Delete)
 
 	return router
 }
