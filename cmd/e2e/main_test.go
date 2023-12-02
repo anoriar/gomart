@@ -24,6 +24,9 @@ type GophermartSuite struct {
 
 	accrualProcess *exec.Cmd
 	conf           *Config
+
+	accrualSystemClient *resty.Client
+	gophermartClient    *resty.Client
 }
 
 func (suite *GophermartSuite) SetupSuite() {
@@ -44,6 +47,12 @@ func (suite *GophermartSuite) SetupSuite() {
 
 	suite.startAccrualSystemProcess(*conf)
 	suite.startGophermartProcess(*conf)
+
+	suite.accrualSystemClient = resty.New()
+	suite.accrualSystemClient.BaseURL = suite.conf.AccrualSystemAddress
+
+	suite.gophermartClient = resty.New()
+	suite.gophermartClient.BaseURL = suite.conf.GophermartAddress
 
 }
 func (suite *GophermartSuite) startAccrualSystemProcess(conf Config) {
@@ -100,10 +109,8 @@ func (suite *GophermartSuite) TearDownSuite() {
 
 func (suite *GophermartSuite) TestGophermart() {
 	suite.Run("ping", func() {
-		client := resty.New()
-		client.BaseURL = suite.conf.GophermartAddress
 
-		resp, err := client.R().Get("/ping")
+		resp, err := suite.gophermartClient.R().Get("/ping")
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -126,7 +133,7 @@ func (suite *GophermartSuite) TestGophermart() {
 
 		client := resty.New()
 		client.BaseURL = suite.conf.AccrualSystemAddress
-		resp, err := client.R().
+		resp, err := suite.accrualSystemClient.R().
 			SetHeader("Content-Type", "application/json").
 			SetBody(m).
 			Post("/api/goods")
@@ -150,7 +157,7 @@ func (suite *GophermartSuite) TestGophermart() {
 
 		client := resty.New()
 		client.BaseURL = suite.conf.AccrualSystemAddress
-		resp, err := client.R().
+		resp, err := suite.accrualSystemClient.R().
 			SetHeader("Content-Type", "application/json").
 			SetBody(m).
 			Post("/api/orders")
@@ -168,9 +175,7 @@ func (suite *GophermartSuite) TestGophermart() {
 				}
 		`)
 
-		client := resty.New()
-		client.BaseURL = suite.conf.GophermartAddress
-		resp, err := client.R().
+		resp, err := suite.gophermartClient.R().
 			SetHeader("Content-Type", "application/json").
 			SetBody(m).
 			Post("/api/user/register")
@@ -183,9 +188,8 @@ func (suite *GophermartSuite) TestGophermart() {
 
 	//удаление пользователя по токену
 	defer func() {
-		client := resty.New()
-		client.BaseURL = suite.conf.GophermartAddress
-		resp, err := client.R().
+
+		resp, err := suite.gophermartClient.R().
 			SetHeader("Authorization", token).
 			Delete("/api/user")
 
@@ -197,9 +201,7 @@ func (suite *GophermartSuite) TestGophermart() {
 	suite.Run("gophermart_load_order", func() {
 		m := []byte(orderNumber)
 
-		client := resty.New()
-		client.BaseURL = suite.conf.GophermartAddress
-		resp, err := client.R().
+		resp, err := suite.gophermartClient.R().
 			SetHeader("Content-Type", "text/plain").
 			SetHeader("Authorization", token).
 			SetBody(m).
@@ -213,9 +215,8 @@ func (suite *GophermartSuite) TestGophermart() {
 	time.Sleep(3 * time.Second)
 
 	suite.Run("gophermart_get_user_orders", func() {
-		client := resty.New()
-		client.BaseURL = suite.conf.GophermartAddress
-		resp, err := client.R().
+
+		resp, err := suite.gophermartClient.R().
 			SetHeader("Authorization", token).
 			Get("/api/user/orders")
 
@@ -236,9 +237,8 @@ func (suite *GophermartSuite) TestGophermart() {
 	})
 
 	suite.Run("gophermart_get_user_balance", func() {
-		client := resty.New()
-		client.BaseURL = suite.conf.GophermartAddress
-		resp, err := client.R().
+
+		resp, err := suite.gophermartClient.R().
 			SetHeader("Authorization", token).
 			Get("/api/user/balance")
 
@@ -263,9 +263,7 @@ func (suite *GophermartSuite) TestGophermart() {
 			}
 		`)
 
-		client := resty.New()
-		client.BaseURL = suite.conf.GophermartAddress
-		resp, err := client.R().
+		resp, err := suite.gophermartClient.R().
 			SetHeader("Content-Type", "application/jsons").
 			SetHeader("Authorization", token).
 			SetBody(m).
@@ -276,9 +274,8 @@ func (suite *GophermartSuite) TestGophermart() {
 	})
 
 	suite.Run("gophermart_recheck_user_balance", func() {
-		client := resty.New()
-		client.BaseURL = suite.conf.GophermartAddress
-		resp, err := client.R().
+
+		resp, err := suite.gophermartClient.R().
 			SetHeader("Authorization", token).
 			Get("/api/user/balance")
 
@@ -296,9 +293,8 @@ func (suite *GophermartSuite) TestGophermart() {
 	})
 
 	suite.Run("gophermart_get_user_withdrawals", func() {
-		client := resty.New()
-		client.BaseURL = suite.conf.GophermartAddress
-		resp, err := client.R().
+
+		resp, err := suite.gophermartClient.R().
 			SetHeader("Authorization", token).
 			Get("/api/user/withdrawals")
 
