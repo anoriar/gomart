@@ -12,6 +12,8 @@ import (
 	errors2 "github.com/anoriar/gophermart/internal/gophermart/shared/errors"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 	"strings"
 )
 
@@ -52,12 +54,18 @@ func (repository *OrderRepository) GetOrderByID(ctx context.Context, orderID str
 }
 
 func (repository *OrderRepository) UpdateOrder(ctx context.Context, orderID string, status string, accrual float64) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "OrderRepository::UpdateOrder")
+	span.SetTag("orderID", orderID)
+	defer span.Finish()
+
 	_, err := repository.db.Conn.NamedExecContext(ctx, "UPDATE orders SET status = :status, accrual = :accrual WHERE id = :id", map[string]interface{}{
 		"id":      orderID,
 		"status":  status,
 		"accrual": accrual,
 	})
 	if err != nil {
+		span.LogFields(log.Error(err))
+
 		if errors.Is(err, sql.ErrNoRows) {
 			return fmt.Errorf("%w: %v", errors2.ErrNotFound, err)
 		}

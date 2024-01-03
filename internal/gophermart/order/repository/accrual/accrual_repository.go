@@ -1,11 +1,14 @@
 package accrual
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/anoriar/gophermart/internal/gophermart/order/dto/accrual"
 	errors2 "github.com/anoriar/gophermart/internal/gophermart/shared/errors"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/ext"
 	"io"
 	"net/http"
 )
@@ -19,14 +22,19 @@ func NewAccrualRepository(httpClient *http.Client, baseURL string) *AccrualRepos
 	return &AccrualRepository{httpClient: httpClient, baseURL: baseURL}
 }
 
-func (repository *AccrualRepository) GetOrder(orderID string) (result accrual.AccrualOrderDto, exists bool, err error) {
-	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/orders/%s", repository.baseURL, orderID), nil)
+func (repository *AccrualRepository) GetOrder(ctx context.Context, orderID string) (result accrual.AccrualOrderDto, exists bool, err error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "AccrualRepository::GetOrder")
+	defer span.Finish()
+
+	url := fmt.Sprintf("%s/api/orders/%s", repository.baseURL, orderID)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return accrual.AccrualOrderDto{}, false, fmt.Errorf("accrual service. getOrder: %w: %v", errors2.ErrInternalError, err)
 	}
 
 	response, err := repository.httpClient.Do(request)
 	if err != nil {
+		ext.LogError(span, err)
 		return accrual.AccrualOrderDto{}, false, fmt.Errorf("accrual service. getOrder: %w: %v", errors2.ErrInternalError, err)
 	}
 	defer response.Body.Close()

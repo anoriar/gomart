@@ -1,9 +1,11 @@
 package fetcher
 
 import (
+	"context"
 	accrualPkg "github.com/anoriar/gophermart/internal/gophermart/order/dto/accrual"
 	"github.com/anoriar/gophermart/internal/gophermart/order/entity"
 	"github.com/anoriar/gophermart/internal/gophermart/order/repository/accrual"
+	"github.com/opentracing/opentracing-go"
 )
 
 type OrderFetchService struct {
@@ -14,11 +16,15 @@ func NewOrderFetchService(accrualRepository accrual.AccrualRepositoryInterface) 
 	return &OrderFetchService{accrualRepository: accrualRepository}
 }
 
-func (service OrderFetchService) Fetch(orderEntity entity.Order) (entity.Order, error) {
+func (service OrderFetchService) Fetch(ctx context.Context, orderEntity entity.Order) (entity.Order, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "OrderFetchService::Fetch")
+	span.SetTag("orderID", orderEntity.ID)
+	defer span.Finish()
+
 	var status string
 	accrual := orderEntity.Accrual
 
-	extOrder, extOrderExists, err := service.accrualRepository.GetOrder(orderEntity.ID)
+	extOrder, extOrderExists, err := service.accrualRepository.GetOrder(ctx, orderEntity.ID)
 	if err != nil {
 		return orderEntity, err
 	}

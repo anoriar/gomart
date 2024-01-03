@@ -5,9 +5,10 @@
 package mock
 
 import (
-	"github.com/anoriar/gophermart/internal/gophermart/shared/dto/responses/ping"
+	context "context"
 	reflect "reflect"
 
+	ping "github.com/anoriar/gophermart/internal/gophermart/shared/dto/responses/ping"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -35,15 +36,15 @@ func (m *MockPingServiceInterface) EXPECT() *MockPingServiceInterfaceMockRecorde
 }
 
 // Ping mocks base method.
-func (m *MockPingServiceInterface) Ping() ping.PingResponseDto {
+func (m *MockPingServiceInterface) Ping(ctx context.Context) ping.PingResponseDto {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Register")
+	ret := m.ctrl.Call(m, "Ping", ctx)
 	ret0, _ := ret[0].(ping.PingResponseDto)
 	return ret0
 }
 
 // Ping indicates an expected call of Ping.
-func (mr *MockPingServiceInterfaceMockRecorder) Ping() *gomock.Call {
+func (mr *MockPingServiceInterfaceMockRecorder) Ping(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockPingServiceInterface)(nil).Ping))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockPingServiceInterface)(nil).Ping), ctx)
 }

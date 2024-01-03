@@ -1,6 +1,7 @@
 package ping
 
 import (
+	"context"
 	"errors"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/app/db/mock"
 	ping2 "github.com/anoriar/gophermart/internal/gophermart/shared/dto/responses/ping"
@@ -24,7 +25,7 @@ func TestPingService_Ping(t *testing.T) {
 		{
 			name: "success",
 			mockBehaviour: func() {
-				dbMock.EXPECT().Ping().Return(nil).Times(1)
+				dbMock.EXPECT().Ping(gomock.Any()).Return(nil).Times(1)
 			},
 			want: ping2.PingResponseDto{
 				Services: []ping2.ServiceStatusDto{
@@ -39,7 +40,7 @@ func TestPingService_Ping(t *testing.T) {
 		{
 			name: "database fail",
 			mockBehaviour: func() {
-				dbMock.EXPECT().Ping().Return(dbError).Times(1)
+				dbMock.EXPECT().Ping(gomock.Any()).Return(dbError).Times(1)
 			},
 			want: ping2.PingResponseDto{
 				Services: []ping2.ServiceStatusDto{
@@ -58,7 +59,7 @@ func TestPingService_Ping(t *testing.T) {
 			service := &PingService{
 				database: dbMock,
 			}
-			got := service.Ping()
+			got := service.Ping(context.TODO())
 			assert.Equal(t, got, tt.want)
 		})
 	}

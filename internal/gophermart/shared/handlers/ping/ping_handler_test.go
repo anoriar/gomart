@@ -42,7 +42,7 @@ func TestPingHandler_Ping(t *testing.T) {
 		{
 			name: "success",
 			mockBehaviour: func() {
-				pingServiceMock.EXPECT().Ping().Return(pingResponseDto)
+				pingServiceMock.EXPECT().Ping(gomock.Any()).Return(pingResponseDto)
 			},
 			want: want{
 				status:      http.StatusOK,

@@ -3,6 +3,8 @@ package ping
 import (
 	"encoding/json"
 	pingService "github.com/anoriar/gophermart/internal/gophermart/shared/services/ping"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 	"net/http"
 )
 
@@ -15,8 +17,16 @@ func NewPingHandler(pingService pingService.PingServiceInterface) *PingHandler {
 }
 
 func (handler *PingHandler) Ping(w http.ResponseWriter, req *http.Request) {
-	response := handler.pingService.Ping()
+	span, ctx := opentracing.StartSpanFromContext(req.Context(), "PingHandler::Ping")
+	defer span.Finish()
+
+	response := handler.pingService.Ping(ctx)
 	responseBody, err := json.Marshal(response)
+
+	span.LogFields(
+		log.Object("response", response),
+	)
+
 	if err != nil {
 		http.Error(w, "Json marshal Error", http.StatusInternalServerError)
 		return

@@ -98,6 +98,8 @@ func (suite *GophermartSuite) startGophermartProcess(conf Config) {
 }
 
 func (suite *GophermartSuite) TearDownSuite() {
+	time.Sleep(2 * time.Second)
+
 	if suite.accrualProcess != nil && suite.accrualProcess.Process != nil {
 		_ = suite.gophermartProcess.Process.Kill() // Kill the process when the suite is done
 	}
@@ -315,5 +317,9 @@ func (suite *GophermartSuite) TestGophermart() {
 }
 
 func TestMyTestSuite(t *testing.T) {
+	_, exists := os.LookupEnv("GOPHERMART_BIN")
+	if !exists {
+		t.Skip()
+	}
 	suite.Run(t, new(GophermartSuite))
 }

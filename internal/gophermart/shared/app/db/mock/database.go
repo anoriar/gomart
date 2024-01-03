@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	context "golang.org/x/net/context"
 )
 
 // MockDatabaseInterface is a mock of DatabaseInterface interface.
@@ -46,15 +47,15 @@ func (mr *MockDatabaseInterfaceMockRecorder) Close() *gomock.Call {
 }
 
 // Ping mocks base method.
-func (m *MockDatabaseInterface) Ping() error {
+func (m *MockDatabaseInterface) Ping(ctx context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Register")
+	ret := m.ctrl.Call(m, "Ping", ctx)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Ping indicates an expected call of Ping.
-func (mr *MockDatabaseInterfaceMockRecorder) Ping() *gomock.Call {
+func (mr *MockDatabaseInterfaceMockRecorder) Ping(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockDatabaseInterface)(nil).Ping))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockDatabaseInterface)(nil).Ping), ctx)
 }

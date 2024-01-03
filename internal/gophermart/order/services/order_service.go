@@ -15,6 +15,7 @@ import (
 	errors3 "github.com/anoriar/gophermart/internal/gophermart/shared/errors"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/services/bus"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/services/validator/idvalidator"
+	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
 )
 
@@ -46,6 +47,10 @@ func NewOrderService(
 }
 
 func (service *OrderService) ProcessOrder(ctx context.Context, orderID string) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "OrderService::ProcessOrder")
+	span.SetTag("orderId", orderID)
+	defer span.Finish()
+
 	orderEntity, err := service.orderRepository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		service.logger.Error(err.Error())
@@ -57,7 +62,7 @@ func (service *OrderService) ProcessOrder(ctx context.Context, orderID string) e
 		return fmt.Errorf(errText)
 	}
 
-	newOrder, err := service.orderFetchService.Fetch(orderEntity)
+	newOrder, err := service.orderFetchService.Fetch(ctx, orderEntity)
 	if err != nil {
 		service.logger.Error(err.Error())
 		return err

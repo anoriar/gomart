@@ -14,7 +14,6 @@ type OrderProcessor struct {
 }
 
 func NewOrderProcessor(
-	ctx context.Context,
 	orderService services.OrderServiceInterface,
 	logger *zap.Logger,
 	msgChan chan message.OrderProcessMessage,
@@ -25,14 +24,14 @@ func NewOrderProcessor(
 		msgChan:      msgChan,
 	}
 
-	go instance.process(ctx)
+	go instance.process()
 
 	return instance
 }
 
-func (p *OrderProcessor) process(ctx context.Context) {
+func (p *OrderProcessor) process() {
 	for msg := range p.msgChan {
-		err := p.orderService.ProcessOrder(ctx, msg.OrderID)
+		err := p.orderService.ProcessOrder(context.Background(), msg.OrderID)
 		if err != nil {
 			p.logger.Error("process order error", zap.String("error", err.Error()))
 		}
