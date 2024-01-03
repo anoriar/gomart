@@ -1,6 +1,20 @@
 version: "3.7"
 
 services:
+#  golang-app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:8080"
+#    env_file:
+#      - .env
+#    networks:
+#      - service-network
+#    depends_on:
+#      - postgres
+#      - jaeger
+
   postgres:
     container_name: ${POSTGRES_HOST}
     image: postgres:16
@@ -13,4 +27,18 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       TZ: GMT+0
+    networks:
+      - service-network
 
+  jaeger:
+    image: jaegertracing/all-in-one
+    container_name: jaeger
+    ports:
+      - 6831:6831/udp
+      - 16686:16686
+    networks:
+      - service-network
+
+
+networks:
+  service-network:

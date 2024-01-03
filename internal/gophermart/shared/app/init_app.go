@@ -17,10 +17,10 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/shared/config"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/services/bus"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/services/ping"
+	"github.com/anoriar/gophermart/internal/gophermart/shared/services/tracer"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/services/validator/idvalidator"
 	"github.com/anoriar/gophermart/internal/gophermart/user/repository"
 	"github.com/anoriar/gophermart/internal/gophermart/user/services/auth"
-	"net/http"
 )
 
 func InitializeApp(ctx context.Context, conf *config.Config) (*App, error) {
@@ -35,9 +35,10 @@ func InitializeApp(ctx context.Context, conf *config.Config) (*App, error) {
 
 	messageBus := bus.NewMessageBus(logger)
 
+	httpClient := tracer.NewTracerHttpClient()
 	userRepository := repository.NewUserRepository(db)
 	orderRepository := orderPkg.NewOrderRepository(db)
-	accrualRepository := accrual.NewAccrualRepository(&http.Client{}, conf.AccrualSystemAddress)
+	accrualRepository := accrual.NewAccrualRepository(httpClient, conf.AccrualSystemAddress)
 	withdrawalRepository := withdrawalRepositoryPkg.NewWithdrawalRepository(db)
 	balanceRepository := balanceRepositoryPkg.NewBalanceRepository(db, withdrawalRepository)
 
@@ -51,7 +52,7 @@ func InitializeApp(ctx context.Context, conf *config.Config) (*App, error) {
 	withdrawService := withdraw.NewWithdrawService(withdrawalRepository, balanceService, idValidator, logger)
 
 	//запуск горутин
-	orderProcessorPkg.NewOrderProcessor(ctx, orderService, logger, messageBus.OrderProcessChan)
+	orderProcessorPkg.NewOrderProcessor(orderService, logger, messageBus.OrderProcessChan)
 	orderprocess.NewOrderSyncFailedProcessor(ctx, orderService, logger, messageBus)
 
 	return NewApp(

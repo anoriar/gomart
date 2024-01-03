@@ -11,6 +11,7 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/shared/middleware/auth"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/middleware/compress"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/middleware/logger"
+	"github.com/anoriar/gophermart/internal/gophermart/shared/middleware/tracer"
 	"github.com/anoriar/gophermart/internal/gophermart/user/handlers/delete"
 	"github.com/anoriar/gophermart/internal/gophermart/user/handlers/login"
 	"github.com/anoriar/gophermart/internal/gophermart/user/handlers/register"
@@ -21,6 +22,7 @@ type Router struct {
 	loggerMiddleware      *logger.LoggerMiddleware
 	compressMiddleware    *compress.CompressMiddleware
 	authMiddleware        *auth.AuthMiddleware
+	tracerMiddleware      *tracer.TracerMiddleware
 	pingHandler           *ping.PingHandler
 	registerHandler       *register.RegisterHandler
 	loginHandler          *login.LoginHandler
@@ -52,6 +54,7 @@ func NewRouter(app *app.App) *Router {
 func (r *Router) Route() chi.Router {
 	router := chi.NewRouter()
 
+	router.Use(r.tracerMiddleware.Trace)
 	router.Use(r.loggerMiddleware.Log)
 	router.Use(r.compressMiddleware.Compress)
 

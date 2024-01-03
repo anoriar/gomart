@@ -1,8 +1,10 @@
 package ping
 
 import (
+	"context"
 	db2 "github.com/anoriar/gophermart/internal/gophermart/shared/app/db"
 	ping2 "github.com/anoriar/gophermart/internal/gophermart/shared/dto/responses/ping"
+	"github.com/opentracing/opentracing-go"
 )
 
 const (
@@ -17,16 +19,19 @@ func NewPingService(database *db2.Database) *PingService {
 	return &PingService{database: database}
 }
 
-func (service *PingService) Ping() ping2.PingResponseDto {
+func (service *PingService) Ping(ctx context.Context) ping2.PingResponseDto {
 	return ping2.PingResponseDto{
 		Services: []ping2.ServiceStatusDto{
-			service.pingDatabase(),
+			service.pingDatabase(ctx),
 		},
 	}
 }
 
-func (service *PingService) pingDatabase() ping2.ServiceStatusDto {
-	err := service.database.Ping()
+func (service *PingService) pingDatabase(ctx context.Context) ping2.ServiceStatusDto {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "PingService::pingDatabase")
+	defer span.Finish()
+
+	err := service.database.Ping(ctx)
 	if err != nil {
 		return ping2.ServiceStatusDto{
 			Name:   dbServiceName,
