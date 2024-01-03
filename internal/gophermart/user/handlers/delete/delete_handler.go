@@ -3,6 +3,8 @@ package delete
 import (
 	"github.com/anoriar/gophermart/internal/gophermart/shared/context"
 	"github.com/anoriar/gophermart/internal/gophermart/user/repository"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 	"net/http"
 )
 
@@ -15,9 +17,12 @@ func NewDeleteHandler(userRepository repository.UserRepositoryInterface) *Delete
 }
 
 func (handler *DeleteHandler) Delete(w http.ResponseWriter, req *http.Request) {
+	reqCtx := req.Context()
+	span, reqCtx := opentracing.StartSpanFromContext(reqCtx, "DeleteHandler::Delete")
+	defer span.Finish()
 
 	userID := ""
-	userIDCtxParam := req.Context().Value(context.UserIDContextKey)
+	userIDCtxParam := reqCtx.Value(context.UserIDContextKey)
 	if userIDCtxParam != nil {
 		userID = userIDCtxParam.(string)
 	}
@@ -27,9 +32,10 @@ func (handler *DeleteHandler) Delete(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err := handler.userRepository.DeleteUser(req.Context(), userID)
+	err := handler.userRepository.DeleteUser(reqCtx, userID)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 

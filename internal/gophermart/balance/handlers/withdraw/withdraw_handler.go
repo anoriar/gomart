@@ -8,6 +8,8 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/balance/services/withdraw"
 	errors2 "github.com/anoriar/gophermart/internal/gophermart/order/errors"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/context"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 	"io"
 	"net/http"
 )
@@ -21,8 +23,12 @@ func NewWithdrawHandler(withdrawService withdraw.WithdrawServiceInterface) *With
 }
 
 func (handler *WithdrawHandler) Withdraw(w http.ResponseWriter, req *http.Request) {
+	reqCtx := req.Context()
+	span, reqCtx := opentracing.StartSpanFromContext(reqCtx, "WithdrawHandler::Withdraw")
+	defer span.Finish()
+
 	userID := ""
-	userIDCtxParam := req.Context().Value(context.UserIDContextKey)
+	userIDCtxParam := reqCtx.Value(context.UserIDContextKey)
 	if userIDCtxParam != nil {
 		userID = userIDCtxParam.(string)
 	}
@@ -35,16 +41,18 @@ func (handler *WithdrawHandler) Withdraw(w http.ResponseWriter, req *http.Reques
 	reqBody, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 	var withdrawDto withdrawRequestPkg.WithdrawDto
 	err = json.Unmarshal(reqBody, &withdrawDto)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 
-	err = handler.withdrawService.Withdraw(req.Context(), userID, withdrawDto)
+	err = handler.withdrawService.Withdraw(reqCtx, userID, withdrawDto)
 	if err != nil {
 		switch {
 		case errors.Is(err, errors2.ErrOrderNumberNotValid):
@@ -55,6 +63,7 @@ func (handler *WithdrawHandler) Withdraw(w http.ResponseWriter, req *http.Reques
 			return
 		default:
 			http.Error(w, "internal server error", http.StatusInternalServerError)
+			span.LogFields(log.Error(err))
 			return
 		}
 	}
