@@ -5,6 +5,8 @@ import (
 	errors2 "github.com/anoriar/gophermart/internal/gophermart/order/errors"
 	"github.com/anoriar/gophermart/internal/gophermart/order/services"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/context"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 	"io"
 	"net/http"
 )
@@ -18,8 +20,12 @@ func NewLoadOrderHandler(orderService services.OrderServiceInterface) *LoadOrder
 }
 
 func (handler *LoadOrderHandler) LoadOrder(w http.ResponseWriter, req *http.Request) {
+	reqCtx := req.Context()
+	span, reqCtx := opentracing.StartSpanFromContext(reqCtx, "LoadOrderHandler::LoadOrder")
+	defer span.Finish()
+
 	userID := ""
-	userIDCtxParam := req.Context().Value(context.UserIDContextKey)
+	userIDCtxParam := reqCtx.Value(context.UserIDContextKey)
 	if userIDCtxParam != nil {
 		userID = userIDCtxParam.(string)
 	}
@@ -38,11 +44,12 @@ func (handler *LoadOrderHandler) LoadOrder(w http.ResponseWriter, req *http.Requ
 	reqBody, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 	orderID := string(reqBody)
 
-	err = handler.orderService.LoadOrder(req.Context(), orderID, userID)
+	err = handler.orderService.LoadOrder(reqCtx, orderID, userID)
 	if err != nil {
 		switch {
 		case errors.Is(err, errors2.ErrOrderNumberNotValid):
@@ -56,6 +63,7 @@ func (handler *LoadOrderHandler) LoadOrder(w http.ResponseWriter, req *http.Requ
 			return
 		default:
 			http.Error(w, "internal server error", http.StatusInternalServerError)
+			span.LogFields(log.Error(err))
 			return
 		}
 	}

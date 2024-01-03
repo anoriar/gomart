@@ -5,6 +5,8 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/order/handlers/getorders/internal/factory"
 	"github.com/anoriar/gophermart/internal/gophermart/order/services"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/context"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 	"net/http"
 )
 
@@ -18,8 +20,12 @@ func NewGetOrdersHandler(orderService services.OrderServiceInterface) *GetOrders
 }
 
 func (handler *GetOrdersHandler) GetOrders(w http.ResponseWriter, req *http.Request) {
+	reqCtx := req.Context()
+	span, reqCtx := opentracing.StartSpanFromContext(reqCtx, "GetOrdersHandler::GetOrders")
+	defer span.Finish()
+
 	userID := ""
-	userIDCtxParam := req.Context().Value(context.UserIDContextKey)
+	userIDCtxParam := reqCtx.Value(context.UserIDContextKey)
 	if userIDCtxParam != nil {
 		userID = userIDCtxParam.(string)
 	}
@@ -29,9 +35,10 @@ func (handler *GetOrdersHandler) GetOrders(w http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	orders, err := handler.orderService.GetUserOrders(req.Context(), userID)
+	orders, err := handler.orderService.GetUserOrders(reqCtx, userID)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 
@@ -45,6 +52,7 @@ func (handler *GetOrdersHandler) GetOrders(w http.ResponseWriter, req *http.Requ
 	responseBody, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 
@@ -53,6 +61,7 @@ func (handler *GetOrdersHandler) GetOrders(w http.ResponseWriter, req *http.Requ
 	_, err = w.Write(responseBody)
 	if err != nil {
 		http.Error(w, "internal Server Error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 }

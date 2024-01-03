@@ -5,6 +5,8 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/balance/handlers/getwithdrawals/internal/factory"
 	"github.com/anoriar/gophermart/internal/gophermart/balance/services/withdraw"
 	"github.com/anoriar/gophermart/internal/gophermart/shared/context"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 	"net/http"
 )
 
@@ -18,6 +20,10 @@ func NewGetWithdrawalsHandler(withdrawService withdraw.WithdrawServiceInterface)
 }
 
 func (handler *GetWithdrawalsHandler) GetWithdrawals(w http.ResponseWriter, req *http.Request) {
+	reqCtx := req.Context()
+	span, reqCtx := opentracing.StartSpanFromContext(reqCtx, "GetWithdrawalsHandler::GetWithdrawals")
+	defer span.Finish()
+
 	userID := ""
 	userIDCtxParam := req.Context().Value(context.UserIDContextKey)
 	if userIDCtxParam != nil {
@@ -32,6 +38,7 @@ func (handler *GetWithdrawalsHandler) GetWithdrawals(w http.ResponseWriter, req 
 	withdrawals, err := handler.withdrawService.GetWithdrawalsByUserID(req.Context(), userID)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 
@@ -45,6 +52,7 @@ func (handler *GetWithdrawalsHandler) GetWithdrawals(w http.ResponseWriter, req 
 	responseBody, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 
@@ -53,6 +61,7 @@ func (handler *GetWithdrawalsHandler) GetWithdrawals(w http.ResponseWriter, req 
 	_, err = w.Write(responseBody)
 	if err != nil {
 		http.Error(w, "internal Server Error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 }

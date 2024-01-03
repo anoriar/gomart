@@ -6,6 +6,8 @@ import (
 	"github.com/anoriar/gophermart/internal/gophermart/user/dto/requests/login"
 	"github.com/anoriar/gophermart/internal/gophermart/user/handlers/login/internal"
 	auth2 "github.com/anoriar/gophermart/internal/gophermart/user/services/auth"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/log"
 	"io"
 	"net/http"
 )
@@ -20,9 +22,14 @@ func NewLoginHandler(authService auth2.AuthServiceInterface) *LoginHandler {
 }
 
 func (handler *LoginHandler) Login(w http.ResponseWriter, req *http.Request) {
+	reqCtx := req.Context()
+	span, reqCtx := opentracing.StartSpanFromContext(reqCtx, "LoginHandler::Login")
+	defer span.Finish()
+
 	requestBody, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 
@@ -33,6 +40,7 @@ func (handler *LoginHandler) Login(w http.ResponseWriter, req *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
+			span.LogFields(log.Error(err))
 		}
 		return
 	}
@@ -42,13 +50,14 @@ func (handler *LoginHandler) Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tokenString, err := handler.authService.LoginUser(req.Context(), *requestDto)
+	tokenString, err := handler.authService.LoginUser(reqCtx, *requestDto)
 	if err != nil {
 		if errors.Is(err, auth2.ErrUnauthorized) {
 			http.Error(w, "user unauthorized", http.StatusUnauthorized)
 			return
 		}
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		span.LogFields(log.Error(err))
 		return
 	}
 
