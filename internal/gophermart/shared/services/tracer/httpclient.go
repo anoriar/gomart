@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func NewTracerHttpClient() *http.Client {
+func NewTracerHTTPClient() *http.Client {
 	return &http.Client{
 		Transport: TracerRoundTripper{Proxy: http.DefaultTransport},
 	}

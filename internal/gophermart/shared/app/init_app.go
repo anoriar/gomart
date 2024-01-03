@@ -35,7 +35,7 @@ func InitializeApp(ctx context.Context, conf *config.Config) (*App, error) {
 
 	messageBus := bus.NewMessageBus(logger)
 
-	httpClient := tracer.NewTracerHttpClient()
+	httpClient := tracer.NewTracerHTTPClient()
 	userRepository := repository.NewUserRepository(db)
 	orderRepository := orderPkg.NewOrderRepository(db)
 	accrualRepository := accrual.NewAccrualRepository(httpClient, conf.AccrualSystemAddress)
